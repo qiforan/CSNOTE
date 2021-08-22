@@ -1,0 +1,113 @@
+\documentclass{ctexart}
+\usepackage{amssymb,mathtools}
+\title{统计学习方法笔记}
+\author{hcheng}
+\begin{document}
+\maketitle
+\section{感知机}
+\subsection{感知机学习策略}
+空间$\mathbf{R}^n$任意一点$x_0$ 到超平面 $\mathbf{S} $ 的距离:
+\[
+    \frac{1}{\left\lVert {w} \right\rVert}\vert w \cdot x_0+ b \vert
+\]
+证明： 令点$x_0$到平面$\mathbf{S}$的投影为$x_1$，距离为$d$，则 $w \cdot x_1+b=0$.
+由于向量$\overrightarrow{x_0x_1}$ 与$\mathbf{S}$平面法向量 $w$平行，所以
+\[
+    |w \cdot \overrightarrow{x_0x_1}| = \left\lVert {w}\right\rVert d
+\]
+又
+\[
+    w \cdot \overrightarrow{x_0x_1} = w \cdot x_0 - w \cdot x_1
+\]
+所以 $\left\lVert {w}\right\rVert d = |w \cdot x_0 + b|$，即
+\[
+    d = \frac{1}{\left\lVert {w}\right\rVert} \left\lvert {w \cdot x_0 + b}\right\rvert
+\]
+\section{朴素贝叶斯}
+\subsection{朴素贝叶斯的学习与分类}
+\subsubsection{基本方法}
+设输入空间$\mathcal{X} \subseteq \mathbf{R}^{n}$ 为 $n$ 维向量的集合，输出空间为类标记集合 $\mathcal{Y} = \{ c_1,c_2,\ldots ,c_K \} $。
+$X$ 是定义在输入空间 $\mathcal{X}$ 上的随机变量，$Y$ 是定义在输出空间 $\mathcal{Y}$ 上的随机变量。 $P (X,Y ) $ 是联合概率分布。训练数据集
+\[
+    T = \{ ( x_1,y_1) ,( x_2,y_2),\cdots , ( x_N, y_N) \}
+\]
+是由 $P (X,Y) $ 独立同分布产生。
+
+朴素贝叶斯对条件概率分布作了\textbf{条件独立}的假设。条件独立的假设等于在说用于分类的特征在类确定的条件下都是条件独立的。
+
+具体地，条件独立假设是
+
+\[
+    P (X = x | Y = c_k) = \prod{ P\left(X^{(j)} = x^{(j)} | Y = c_k\right)}
+\]
+
+朴素贝叶斯法分类时，对给定的输入 $x$,通过学习到的模型计算后验概率分布 $P ( Y = c_k | X = x ) $，将\textbf{后验概率最大的类}作为 $x$ 的类输出。后验概率计算根据贝叶斯定理进行:
+\[
+    P ( Y = c_k | X = x) = \frac{P(X=x|Y=c_k)P(Y=c_k)}{\sum_k{}P(X = x | Y = c_k) P(Y = c_k)}
+\]
+
+于是，朴素贝叶斯分类器可表示为
+
+\[
+    y = \arg \mathop{\max}_{c_k}{P(Y=c_k)\prod_{j}P\left(X^{(j)} = x^{(j)} | Y = c_k\right)}
+\]
+
+朴素贝叶斯高效且易于实现，缺点是分类性能不一定高。
+
+\subsubsection{后验概率最大化的含义}
+朴素贝叶斯法选择后验概率最大的类，等价于期望风险最小化。
+假设选择 0-1 损失函数：
+\[
+    L(Y,f(X)) = \begin{cases}
+        1, & Y \neq  f(X) \\
+        0, & Y = f(X)
+    \end{cases}
+\]
+
+期望风险函数为
+
+\[
+    R_{exp}(f) = E_X\sum_{k=1}^K[L(c_k,f(X))]P(c_k|X)
+\]
+
+为了最小期望风险，对 $X=x$ 逐个极小化，由此可得:
+
+\[
+    \begin{aligned}
+        f(x) &= \arg \mathop{\min}_{y \in \mathcal{Y} } \sum_{k=1}^K L(c_k,y)P(c_k | X = x)\\
+             &= \arg \mathop{\min}_{y \in \mathcal{Y} } \sum_{k=1}^K P(y \neq c_k | X = x)  \\
+             &= \arg \mathop{\max}_{y \in \mathcal{Y} } P(y=c_k | X = x) \\
+    \end{aligned}
+\]
+
+这样即可得后验概率最大化准则:
+\[
+    f(x) = \arg \mathop{\max}_{c_k} P(c_k | X = x)
+\]
+
+\subsection{朴素贝叶斯法的参数估计}
+
+\subsubsection{极大似然估计}
+
+在朴素贝叶斯法中，估计 $P(Y=c_k)$ 和 $P(X^{(j)} = x^{(j)} | Y = c_k)$. 可以用极大似然估计法。
+
+先验概率 $P(Y=c_k)$ 的极大似然估计为
+
+\[
+    P(Y=c_k) = \frac{\sum_{i=1}^NI(y_i=c_k)}{N},  k = 1,2, \cdots,K
+\]
+
+条件概率估计类似。
+
+\subsubsection{贝叶斯估计}
+
+用极大似然估计可能会出现要估计的概率值为 0 的情况。可采用贝叶斯估计解决，具体地，条件概率地贝叶斯估计为
+
+\[
+    P_{\lambda}(X{(j)} = a_{jl} | Y = c_k) = \frac{\sum_{i=1}^N I(x_i^{(j)} = a_{jl},y_i=c_k) + \lambda}{\sum_{i=1}^NI(y_i=c_k) + S_j\lambda}
+\]
+
+
+等价于在随机变量各个取值地频数上赋予一个正数 $\lambda > 0$。取 $\lambda = 1$ 时，称为拉普拉斯平滑。
+
+\end{document}

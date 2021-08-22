@@ -1,0 +1,1 @@
+add_executable(rcver rcver.c)

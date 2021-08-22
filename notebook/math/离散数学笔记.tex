@@ -1,0 +1,158 @@
+\documentclass{ctexart}
+\usepackage{amssymb, mathtools,amsthm, multirow}
+\newtheorem{theorem}{\indent 定理}[section]
+\newtheorem{lemma}[theorem]{\indent 引理}
+\newtheorem{proposition}[theorem]{\indent 命题}
+\newtheorem{corollary}[theorem]{\indent 推论}
+\newtheorem{definition}{\indent 定义}[section]
+\newtheorem{example}{\indent 例}[section]
+\newtheorem{remark}{\indent 注}[section]
+\newenvironment{solution}{\begin{proof}[\indent\bf 解]}{\end{proof}}
+\renewcommand{\proofname}{\indent\bf 证明}
+\title{离散数学笔记}
+\author{hcheng}
+\begin{document}
+\maketitle
+\section{逻辑与证明}
+\subsection{命题逻辑}
+\textbf{命题} 是一个陈述语句，或真或假。用字母来表示\textbf{命题变元}，表示命题的变量，习惯用 $p, q, r, s, \ldots $表示命题。
+如果一个命题是真命题，则真值为真，用 $T$ 表示；如果为假，则用 $F$表示。
+
+运算符从一个已知的命题构造出一个新的命题。
+\begin{definition}
+    令 $p$ 为一命题，则 $p$ 的否定记为 $\lnot p$
+\end{definition}
+\begin{definition}
+    令 $p$ 和 $q$ 为命题。$q$、$q$的合取即命题“$p$并且$q$”，记作 $p \land q$。当 $p$ 和 $q$ 都为真时，$p \land q$ 才为真。
+\end{definition}
+\begin{definition}
+    令 $p$ 和 $q$ 为命题。$q$、$q$的析取即命题“$p$或$q$”，记作 $p \lor q$。当 $p$ 和 $q$ 都为假时，$p \lor q$ 才为假。
+\end{definition}
+\begin{definition}
+    令 $p$ 和 $q$ 为命题。$q$、$q$的亦或，记作 $p \oplus  q$。当 $p$ 和 $q$ 只有一个为真时，$p \oplus q$ 才为真。
+\end{definition}
+下面讨论其他几个重要的命题合成方式。
+\begin{definition}
+    令 $p$ 和 $q$ 为命题。条件语句 $p \rightarrow q$ 是命题“如果 $p$, 则 $q$”。当 $p$ 为真而 $q$ 为假时，$p \rightarrow q$ 才为假，否则为真。
+    其中，$p$称为假设（前件），$q$称为结论（后件）。
+\end{definition}
+条件语句 $p \rightarrow q$ 可以断定在条件 $p$ 成立时 $q$ 为真。条件语句也称为\textbf{蕴含}。
+
+命题 $q \rightarrow p$ 称为 $p \rightarrow q$ 的逆命题，而$\lnot p \rightarrow \lnot q$ 称为反命题。
+
+当两个复合命题真值相同时，我们称它们 \textbf{等价}。一个条件语句和其逆否命题等价。
+
+\begin{definition}
+    令 $p$ 和 $q$ 为命题。双条件语句 $p \leftrightarrow  q$ 是命题“$p$ 当且仅当 $q$”。当 $p$ 为真且 $q$ 为真时，$p \leftrightarrow q$ 才为真，否则为假。
+\end{definition}
+注意，$p \leftrightarrow q$ 与 $(p \rightarrow q) \land (q \rightarrow p)$ 等价。
+
+通过否定以及四个逻辑联结词——合取、析取、条件、双条件，可以构造含有一些命题变元的复合命题。
+
+规定否定运算符先于其他逻辑运算符。合取运算符先于析取运算符。条件运算符和双条件运算符的优先级最低。
+
+\begin{definition}
+    位串是$0$ 位或多位的序列，位串的长度就是它含位的数目。
+\end{definition}
+\subsection{命题等价式}
+数学证明中使用的一个重要步骤就是用真值相同的一条语句替换另一条语句。
+\begin{definition}
+    一个真值永远为真的复合命题，称之为永真式（tautology），也称重言式。
+    一个真值永远为假的复合命题，称之为矛盾式（contradiction）。
+    既不是永真式也不是矛盾式的复合命题称之为可能式（contingency）。
+\end{definition}
+在所有可能的情况下都有相同真值的两个复合命题称为\textbf{逻辑等价}。
+\begin{definition}
+    如果 $p \leftrightarrow q$ 是永真式，则复合命题 $p$ 和 $q$ 是逻辑等价的，用记号 $p \equiv q$ 表示。
+\end{definition}
+判定两个复合命题是否等价的方法之一是使用真值表。用这个方法可知$\lnot (p \lor q)$ 和 $\lnot p \land \lnot q$ 逻辑等价，$p \rightarrow q$ 和 $ \lnot p \lor q$逻辑等价。
+\begin{table}
+    \centering
+    \caption{逻辑真值表}
+    \begin{tabular}{p{14em}|cp{6em}}
+        \hline
+        \multicolumn{1}{c|}{等价式} & \multicolumn{1}{c}{名称} \\
+        \hline
+        $p \land T \equiv p$   & \multirow{2}*{恒等律} \\ 
+        \cline{1-1}
+        $p \lor F \equiv p$    &                       \\
+        \hline
+        $p \lor T \equiv T$    & \multirow{2}*{支配律} \\ 
+        \cline{1-1}
+        $p \land F \equiv F$   &                       \\
+        \hline
+        $p \lor p \equiv p$    & \multirow{2}*{幂等律} \\ 
+        \cline{1-1}
+        $p \land p \equiv p$   &                       \\
+        \hline
+        $\lnot(\lnot p) \equiv p$ & 双重否定律          \\
+        \hline
+        $p\land q \equiv q \land p$ & \multirow{2}*{交换律} \\
+        \cline{1-1}
+        $p \lor q \equiv q \lor p$ &                   \\
+        \hline
+        $(p \lor q) \lor r \equiv p\lor(q \lor r)$ & \multirow{2}*{结合律} \\
+        \cline{1-1}
+        $(p \land q) \land r \equiv p\land(q \land r)$ &   \\
+        \hline
+        $p\lor (q\land r) \equiv (p \lor q) \land (p \lor r)$ & \multirow{2}*{分配律} \\
+        \cline{1-1}
+        $p\land (q\lor r) \equiv (p \land q) \lor (p \land r)$ & \\
+        \hline
+        $\lnot (p \land q) \equiv \lnot p \lor \lnot q$ & \multirow{2}*{德摩根律} \\
+        \cline{1-1}
+        $\lnot(p \lor q) \equiv \lnot p \land \lnot q$ &      \\
+        \hline
+        $p\lor (p \land q) \equiv p$    &    \multirow{2}*{吸收律} \\
+        \cline{1-1}
+        $p\land(p \lor q) \equiv p$ &                               \\
+        \hline
+        $p \lor \lnot p \equiv T$ & \multirow{2}*{否定律}         \\
+        \cline{1-1}
+        $p \land \lor p \equiv T$ &                              \\
+        \hline
+    \end{tabular}
+    \caption{条件命题的等价形式}
+    \begin{tabular}{p{20em}}
+        \hline
+        $p \rightarrow q \equiv \lnot p \lor q$                         \\
+        $p \rightarrow q \equiv \lnot q \rightarrow \lnot p$            \\
+        $p \lor q \equiv \lnot p \rightarrow q$                         \\
+        $p \land q \equiv \lnot (p \rightarrow \lnot q)$                \\
+        $\lnot(p \rightarrow q) \equiv p \land \lnot q$                 \\
+        $(p \rightarrow q) \land (p \rightarrow r) \equiv p \rightarrow (q \land r) $ \\
+        $(p \rightarrow r) \land (p \rightarrow r) \equiv (p \lor q) \rightarrow  r $ \\
+        $(p \rightarrow q) \lor (p \rightarrow r) \equiv p \rightarrow (q \lor r) $ \\
+        $(p \rightarrow r) \lor (p \rightarrow r) \equiv (p \land q) \rightarrow  r $ \\
+        \hline
+    \end{tabular}
+    \caption{双条件命题的逻辑等价式}
+    \begin{tabular}{p{20em}}
+        \hline
+        $p \leftrightarrow q \equiv (p \rightarrow q) \land (q \rightarrow p)$  \\
+        $p \leftrightarrow q \equiv \lnot p \leftrightarrow \lnot q $           \\
+        $p \leftrightarrow q \equiv (p \land q) \lor (\lnot p \land \lor q)$    \\
+        $\lnot (p \leftrightarrow q) \equiv p \leftrightarrow \lnot q$          \\
+        \hline
+    \end{tabular}
+\end{table}
+\subsection{谓词和量词}
+在原子命题中，可以独立存在的客体称为个体词。用以刻画客体性质或客体之间的关系即是谓词。谓词使用大写英文字母 $P,Q,R$来表示。
+
+当命题函数中的变量均被赋值，得到的语句就变成可判断真假的命题了。也可以从命题函数中生成一个命题。量化表示在何种程度上谓词对一定范围的个体成立。
+\begin{definition}
+    $P(x)$ 的{\bf 全称量化}是语句
+
+    \centerline{“$P(x)$对$x$在其论域的所有值为真。”}
+    符号$\forall xP(x)$表示$P(x)$的全称量化，其中 $\forall$ 称为{\bf 全称量词}。
+\end{definition}
+\begin{definition}
+    $P(x)$ 的{\bf 存在量化}是语句
+
+    \centerline{“论域中存在一个个体$x$满足$P(x)$”}
+    符号$\exists xP(x)$表示$P(x)$的存在量化，其中 $\exists$ 称为{\bf 存在量词}。
+\end{definition}
+量词$\forall$和$\exists$ 比命题演算中的所有逻辑运算符都具有更高优先级。
+
+其中，$\lnot \forall xP(x) \equiv \exists x \lnot P(x)$
+\end{document}

@@ -1,0 +1,356 @@
+\documentclass{ctexart}
+\usepackage{amssymb, mathtools, amsthm, enumitem }
+\newtheorem{theorem}{\indent Theorem}[section]
+\newtheorem{lemma}[theorem]{\indent Lemma}
+\newtheorem{proposition}[theorem]{\indent Proposition}
+\newtheorem{corollary}[theorem]{\indent 推论}
+\newtheorem{definition}{\indent Definition}[section]
+\newtheorem{example}{\indent Example}[section]
+\newtheorem{remark}{\indent Remark}[section]
+\newenvironment{solution}{\begin{proof}[\indent\bf 解]}{\end{proof}}
+\renewcommand{\proofname}{\indent\bf Proof.}
+\title{COMP9020 REVIEW}
+\author{hcheng}
+\begin{document}
+\maketitle
+\section{Foundation}
+\subsection{Notation for Number}
+\begin{definition}
+
+    Integers $\mathbb{Z} = \{\ldots -2, -1, 0, 1, 2, \ldots \}$.
+
+              $\lfloor . \rfloor : \mathbb{R} \rightarrow \mathbb{Z}$ -- \textbf{floor} of x, the greatest integer $\leqslant x$
+
+              $\lceil . \rceil : \mathbb{R} \rightarrow \mathbb{Z}$ -- \textbf{ceil} of x, the least integer $\geqslant  x$
+\end{definition}
+Simple proposities
+\begin{itemize}[leftmargin = 50 pt]
+    \item    
+        $\lfloor -x \rfloor = - \lceil -x \rceil$
+    \item    
+        $\lfloor x + t \rfloor = \lfloor x \rfloor + t$
+\end{itemize}
+\begin{proposition}
+    Let $k, m, n \in \mathbb{Z}$ such that $k > 0$ and $m \geqslant n $. The number of multiplies of $k$ in the interval $\left[ n, m \right] $ is 
+    \[
+        \lfloor \frac{m}{k} \rfloor - \lfloor \frac{n-1}{k} \rfloor
+    \]
+\end{proposition}
+\subsection{Sets}
+A set is defined by the collection of elements.
+\begin{itemize}[leftmargin = 50 pt]
+    \item    
+        $x \in S$ -- object x \textbf{is an element of} set $S$
+    \item    
+        $S \subseteq T$ -- $S$ is a \textbf{subset} of $T$
+    \item    
+        $S \subset T$ -- $S$ is a \textbf{proper subset} of $T$
+\end{itemize}
+Number of elements in a set $X$(various notations):
+\[
+    \left\lvert X \right\rvert = \#(X) = card(X)
+\]
+\textbf{Power set} $Pow(X) = \{A:A\subseteq X\}$
+\begin{proposition}
+    Always $\left\lvert Pow(X) \right\rvert = 2^{\left\lvert X \right\rvert}$.
+\end{proposition}
+Union $A\bigcup B$; Intersection $A \bigcap B$.
+We say that $A,B$ are \textbf{disjoint} if $A \bigcap B = \emptyset$
+
+\subsection{Formal Language}
+$\Sigma$ -- \textbf{alphabet}, a finite, nonempty set.
+\begin{definition}
+    \textbf{word} is a finite string of symbols from $\Sigma$. A empty word is notated as $\lambda$.
+\end{definition}
+\begin{itemize}[leftmargin = 50 pt]
+    \item 
+        $\Sigma ^{k}$ -- set of all words of length $k$
+    \item
+        $\Sigma ^{*}$ -- set of all words (of all lengths)
+\end{itemize}
+
+A \textbf{language} is a subset of $\Sigma ^ {k} $. Typically, only the subsets that can be formed(or described) according to certain rules are of interest. Such a collection of the rules is called a \textbf{grammar}.
+
+\subsection{Proofs}
+
+A \textbf{mathematical proof} of a proposition $p$ is a chain of logical deductions leading to $p$ from a base set of axioms.
+
+Let $Prop = \{p,q,r,\ldots\}$ be a set of basic proposition letters. Consider the alphabet
+\[
+    \Sigma = Prop \cup \{\top, \bot, \lnot, \land, \lor, \Rightarrow , \Leftrightarrow , (,)\}
+\]
+
+The set of \textbf{formulae of propositional logic} is the smallest set of words over $\Sigma$ such that
+
+\begin{itemize}[leftmargin = 50 pt]
+    \item $\top, \bot$ and all elements of $Prop$ are formulae
+    \item if $\phi $ is a formulae, then so is $\lnot \phi$
+    \item if $\phi$ and $\psi $ are formulae, then so are $(\phi \land \psi), (\phi \lor \psi), (\phi \Rightarrow \psi), (\phi \Leftrightarrow \psi)$
+\end{itemize}
+
+Convention: we often drop parentheses when there is no ambiguity.
+
+Two formulae $\phi$, $\psi$ are \textbf{logical equivalent}, denoted $\phi \equiv \psi$ if they have the same truth value for all values of there basic proposition.
+
+\subsection{Validity, Entailment, Arguments}
+
+An argument consists of a set of declarative sentences called \textit{premises} and a declarative sentence called the \textit{conclusion}.
+
+An argument is \textit{valid} if the conclusions are true whenever all the premises are true. 
+Thus: if we believe the premises, we should also believe the conclusion.
+
+The argument with premises $\phi_1,\ldots,\phi_n$ and conclusion $\phi$ is valid, denoted
+\[
+    \phi_1, \ldots, \phi_n \models \phi
+\]
+
+if in every row of the truth table where $\phi_1,\ldots, \phi_n$ are true, $\phi$ is true.
+
+A formula $\phi$ is \textbf{valid}, or a textbf{tautology}, denoted $\models \phi$, if it evaluates to $T$ for all assignments of the truth values to its basic proposition.
+
+\subsection{Proof Rules and Methods}
+\subsubsection{Proof of the Contraposition}
+
+We want to prove $A \Rightarrow B$. To prove it, we show $\lnot B \Rightarrow \lnot A$ and invoke the equivalence $(A \Rightarrow B) \equiv (\lnot B \Rightarrow \lnot A)$
+
+\subsection{Boolean Functions}
+
+Formulae can be viewed as \textbf{Boolean functions} mapping valuations of their propositional letters to truth values.
+
+A Boolean function of one variable is also called \textbf{unary}.
+
+A function of two variables is called \textbf{binary}.
+
+A function $n$ input variables is called \textbf{n-ary}
+
+Boolean algebra (BA) notation for propositional formulae:
+
+\begin{table}
+    \centering
+    \begin{tabular}{lcc}
+        \hline
+        & \textbf{PL} & \textbf{BA} \\
+        propositional atoms & $p,q,\ldots$ & $p,q,\ldots$ \\
+        conjunction & $p\land q$ & $p \cdot q$ or $pq$ \\ 
+        disjunction & $ \lor q$ & $ p + q $ \\
+        negation    & $\lnot p$ & $p'$ \\
+        \hline
+    \end{tabular}
+\end{table}
+
+\begin{itemize}
+    \item A \textbf{literal} is an expression $p$ or $p'$, where $p$ is a propositional atom.
+    \item  An expression is in \textbf{CNF}(conjunctive normal form) if it has the form
+    \[
+        \prod_{i} C_i
+    \]
+    where each \textbf{clause} $C_i$ is a disjunction of literals e.g. $p+q+r'$
+    \item An expression is in \textbf{DNF}(disjunctive normal form) if it has the form
+    \[
+        \sum{i} C_i
+    \]
+    where each \textbf{clause} $C_i$ is a conjunction of literals e.g. $pqr'$
+\end{itemize}
+
+\begin{theorem}
+    For every Boolean expression $\phi$, there exists an equivalent expression in conjunctive normal form and an equivalent expression in disjunctive normal form.
+\end{theorem}
+
+\subsubsection{Canonical Form DNF}
+
+Give a Boolean expression $E$, we can construct an equivalent DNF $E^{dnf}$ from the lines of the the truth table where $E$ is true:
+Given an assignments $\pi$ of $0,1$ to variables $x_1, \ldots, x_i$,define the literal
+\begin{equation}
+        \ell_i = \begin{cases}
+            x_{i},  if \pi(x_i) = 1 \\
+            x_{i'},  if \pi(x_i) = 0
+        \end{cases}
+\end{equation}
+
+and a product $t_{\pi} =\ell_{1} \cdot \ell_{2} \cdot \ldots \cdot \ell{n}$.
+
+The \textbf{canonical DNF} of $E$ is 
+\[
+    E^{dnf} = \sum_{E(\pi) = 1} t_{\pi}
+\]
+
+\subsection{Karnaugh Maps}
+
+For up to four variables(propositional symbols) a diagrammatical method of simplification called \textbf{Karnaugh maps} works quite well. For every propositional function of $k = 2,3,4$ variables we construct a rectangular array of $2^k$ cells. We mark the squares corresponds to the value 1 with eg "+" and try to cover these squares with as few rectangules with sides 1 or 2 or 4 as possible.
+
+\section{Functions and Relations}
+\subsection{Functions}
+$f : S \rightarrow T$ describes pairing of the sets: it means that $f$ assigns to every element $s \in S$ a unique element $t \in T$.
+
+$S$ -- \textbf{domain} of $f$, symbol: $Dom(f)$
+
+$T$ -- \textbf{codomain} of $f$, symbol: $Codom(f)$
+
+$\{f(x): x \in Dom(f)\}$ -- \textbf{image} of $f$, symbol: $Im(f)$
+\[
+    Im(f) \subseteq Codom(f)
+\]
+We observe that every function maps its domain \textbf{into} its codomain, but only \textbf{onto} its image.
+\subsection{Composition of Functions}
+Auxiliary notation
+\[
+    f: x \mapsto y,  f: A \mapsto B
+\]
+The former means that $x$ is mapped to $y$; the latter means that $B$ is the \textbf{image} of $A$ under $f: B = \{f(s): s \in A\}$
+\begin{definition}
+    \textbf{Composition} of functions is described as
+    \[
+        g \circ f : x \mapsto g(f(x)), requiring Im(f) \subseteq Dom(g)
+    \]
+\end{definition}
+Composition is associative.
+
+Function is called \textbf{1-1(one-to-one)} or \textbf{injective} if different $x$ implies different $f(x)$, i.e.
+\[
+    f(x) = f(y) \Rightarrow x = y
+\]
+
+\section{Introduction to Graphs and Trees}
+
+\subsection{Graphs}
+
+\begin{definition}[(Undirected Graph)]
+    pair $G = (V, E)$ where $V$ is set of vertices, $E$ is set of edges.
+    Every edge $e \in E$ corresponds uniquely to the set $\{ x_e,y_e\}$ of vertices $x_e,y_e \in V$
+\end{definition}
+
+A directed graph is called an \textit{arc};it corresponds to the ordered pair $(x_a,y_a)$.
+A \textbf{directed graph} consist of vertices and arcs.
+
+\textbf{Degree} of a vertex $v$ in a graph $G$
+\[
+    deg(v) = \left\lvert \{ w in V(G): (v,w) \in E(G)\}\right\rvert 
+\]
+i.e., the number of edges attached to the vertex.
+
+\textbf{Regular graph} is graph that all degrees are equal.
+
+$\sum_{v \in V}deg(v) = 2 \cdot \left\lvert E(G)\right\rvert$, thus the sum of the vert degrees is always even.
+
+\subsection{Graph Isomorphisms}
+
+$\iota : G \rightarrow H$ is a graph isomorphism if
+\begin{enumerate}
+    \item $\iota : V(G) \rightarrow V(H)$ is 1-1 and onto(a so-called bijection)
+    \item $\{x, y\} \in E(G)$ iff $\{\iota(x),\iota(y) \} \in E(H)$
+\end{enumerate}
+Two graphs are called isomorphic if there exists(at least one) isomorphism between them.
+
+An isomorphism from a graph to itself is called automorphism. Every graph has at least the trivial automorphism.
+
+Graphs with no non-trivial automorphisms are called \textit{asymmetric}. The smallest non-trivial asymmetric graphs have 6 vertices.
+
+\subsection{Edge Traversal}
+
+\textbf{Euler path} -- path containing every edge of $G$ exactly once. 
+
+\textbf{Euler circuit} -- closed Euler path.
+
+\textbf{characterisations}:
+\begin{itemize}[leftmargin = 50 pt]
+    \item G(connected) has an Euler circuit iff $deg(v)$ is even for all $v \in V(G)$
+    \item G(connected) has an Euler path if either it has an Euler circuit (above) or it has exactly two vertices of odd degree.
+\end{itemize}
+
+\subsection{Special Graphs}
+
+\begin{enumerate}
+    \item \textbf{Complete graph $K_n$ $n$} vertices, all pairwise connected, $\frac{n(n-1)}{2}$ edges.
+    \item \textbf{Complete bipartite graph $K_{m,n}$}, has $m+n$ vertices, partitioned into two (disjoint) vertices.
+\end{enumerate}
+
+\subsection{Vertex Traversal}
+
+\textbf{Hamiltonian path} visits every vertex of graph exactly once.
+
+\textbf{Hamiltonian circuit} visits every vertex exactly once except the last one, which duplicates the first.
+
+\subsection{Colouring}
+
+Informally: assiging a "colour" to each vertex so that the verteces connected by an edge have different colours.
+
+Formally: A mapping $c : V \rightarrow \left[ 1 \ldots n \right] $ such that every $e = \{v,w\} \in E$
+\[
+    c(v) \neq c(w)
+\]
+The minimum $n$ sufficient to effect such a mapping is called the \textbf{chromatic number} of a graph $G = (E, V)$ and is denoted $\chi (G)$.
+
+\begin{itemize}
+    \item $\chi (K_n) = n$
+    \item if $G$ has $n$ vertices and $\chi (G) = n$ then $G = K_n$
+\end{itemize}
+
+\subsection{Cliques}
+
+A \textbf{clique} in $G$ is a complete subgraph of $G$. A clique of $k$ nodes is called k-clique.
+
+The size of the largest clique is called the \textit{clique number} of the graph and denoted $\kappa (G)$
+
+\begin{theorem}
+    \[
+        \chi (G) \geq \kappa (G)
+    \]
+\end{theorem}
+
+\begin{proof}
+    Every vertex of a clique requires a different colour, hence there must be at least $\kappa (G)$ colours.
+\end{proof}
+
+\subsection{Planar Graphs}
+
+\begin{definition}
+    A graph is \textbf{planar} if it can be embedded in a plane without its edges intersecting.
+\end{definition}
+
+\section{Induction and Recursion}
+\subsection{Mathematical Induction}
+
+\begin{theorem}
+    \textbf{Principle of Mathematical Induction}  
+    
+    Let $p(m),p(m+1), \ldots$ be a sequence of propositions. If
+
+    (B) \quad $p(m)$ is true, and
+
+    (I) \quad $p(k+1)$ is true whenever $p(k)$ is true and $m \leqslant  k$,
+
+    then all the propositions are true.
+\end{theorem}
+Condition (B) in principles of the induction is called \textbf{basic}, and (I) is the \textbf{inductive step}.
+
+\subsection{Big-Oh Notation}
+\begin{definition}
+    Let $f,g:\mathbb{N} \rightarrow \mathbb{R}$. We say g is asymptotically less than f(or: $f$ \textbf{is an upper bound of } $g$) if there exists $n_0 \in \mathbb{N}$ and a real constant $c > 0$ such that for all $n \geqslant n_0$,
+    \[
+        g(n) \leqslant c \cdot f(n)
+    \]
+    Write $\mathcal{O}(f(n))$ for the class of all functions $g$ that are asymptotically less than $f$.
+\end{definition}
+\begin{definition}
+    Two functions $f,g$ have the same order of growth if they scale up in the same way. 
+    There exists $n_0 \in \mathbb{N}$ and a real constant $c > 0, d > 0$ such that for all $n \geqslant n_0$,
+    \[
+        d \cdot f(n) \leqslant  g(n) \leqslant c \cdot f(n)
+    \]
+    Write $\mathcal{O}(f(n))$ for the class of all functions $g$ that have the same order of growth as $f$.
+\end{definition}
+If $g \in \mathcal{O}(f)$ we say that $f$ is (gives) an upper bound on the order of growth of $g$; if $g \in \mathcal{O}(f)$ we call it a \textbf{tight bound}.
+
+\begin{theorem}[Master Theorem]
+    The following cases cover many divide-and-conquer recurrences that arise in practice:
+    \[
+        T(n) = d^{\alpha} \cdot T(\frac{n}{d}) + \mathcal{O}(n^{\beta})
+    \]
+    The solution of $T(n)$ depends on $\alpha$ and $\beta$
+    \begin{itemize}
+        \item $\alpha > \beta$, $T(n) = \mathcal{O}(n^{\alpha})$
+        \item $\alpha = \beta$, $T(n) = \mathcal{O}(n^{\alpha}\log{n})$
+        \item $\alpha < \beta$, $T(n) = \mathcal{O}(n^{\beta})$
+    \end{itemize}
+\end{theorem}
+\end{document}

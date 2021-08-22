@@ -1,0 +1,137 @@
+\documentclass[11pt]{ctexart}
+\usepackage{amssymb, mathtools, amsthm}
+\newtheorem{theorem}{\indent 定理}[section]
+\newtheorem{lemma}[theorem]{\indent 引理}
+\newtheorem{proposition}[theorem]{\indent 命题}
+\newtheorem{corollary}[theorem]{\indent 推论}
+\newtheorem{definition}{\indent 定义}[section]
+\newtheorem{example}{\indent 例}[section]
+\newtheorem{remark}{\indent 注}[section]
+\newenvironment{solution}{\begin{proof}[\indent\bf 解]}{\end{proof}}
+\renewcommand{\proofname}{\indent\bf 证明}
+\title{计算数论笔记}
+\author{hcheng}
+\begin{document}
+\maketitle
+\section{整数的因子分解}
+\subsection{唯一分解定理}
+自然数的定义不一，为了方便讨论，我们认为自然数就是正整数。
+\begin{theorem}
+    设 $a$ 和 $b$ 为整数，$b>0$，则存在整数 $q$ 和 $r$，使
+    \[
+        a = qb + r, 0 \leq r < b，
+    \]
+    $r$ 称为 $b$ 除以 $a$ 所得的最小正剩余.
+\end{theorem}
+\begin{proof}
+    $\frac{a}{b}$ 可以看作整数部分加上小数部分，即
+    \[
+        \frac{a}{b} = [\frac{a}{b}] + \{\frac{a}{b}\}, 0 \leq  \{\frac{a}{b}\} < 1.
+    \]
+    若 $\frac{a}{b}$ 为负数，则其小数部分也是一个负数，则整数部分减一，小数部分加一便可以得到上式。
+    上式两边同乘以 $b$,可得
+    \[
+        a = [\frac{a}{b}]b + \{\frac{a}{b}\}b, 0 \leq \{\frac{a}{b}\} < 1.
+    \]
+    $[\frac{a}{b}]$ 即为所求的 $q$,整数$\{\frac{a}{b}\}b$即为所求的$r$.
+\end{proof}
+
+若 $b$ 除 $a$ 的最小正剩余 $r$ 为零，称 $b$ 为 $a$ 的因子，$a$ 为 $b$ 的倍数，记为 $b\mid a$.
+
+若 $b$ 为 $a$ 的因子，$b \neq 1,b \neq a $, 称 $b$ 为 $a$ 的真因子，显然 $0 < \mid b \mid < \mid a \mid $.
+
+若 $b \neq 0, c \neq 0$，显然:
+\begin{enumerate}
+    \item 若 $b \mid a, c \mid b$,则 $c \mid a$;
+    \item 若 $b \mid a$, 则 $bc \mid ac$;
+    \item 若 $c \mid d, c \mid e$, 则对于任意 $m,n$, 有 $c \mid dm+en$.
+\end{enumerate}
+
+自然数集合中，若 $p(p \neq 1)$ 仅有 $1$ 和 $p$ 两个因子，称 $p$ 为素数。如果一个自然数，既不等于 $1$,又不是素数，那就是合数。
+
+若 $M$ 为整数的一个子集，且对加、减法封闭，即若 $m,n \in M$,则 $m \pm n \in M$,则 $M$ 称为模。
+\begin{theorem}
+    任一非零模，必为一正整数的诸倍数组成的集合.
+\end{theorem}
+\begin{proof}
+    $M$ 为模，且 $M \neq \{0\}$，则 $M$存在非零元 $a$. 则 $a - a = 0 $ 为 $M$ 中元素，$0 - a = -a$ 也为 $M$ 中元素。则 $M$ 中存在正整数 $|a|$.
+
+    用反证法易知 $M$ 中存在一个最小正整数（否则可以推出一无穷序列）。
+
+    设$M$中最小正整数为 $d$, 任取$M$中一元素 $n$, 有
+    \[
+        n = kd + r, 0 \leqq r < d,
+    \]
+
+    易知 $n-kd \in M$, 则 $r \in M$. $r$ 只能为 $0$.
+
+    故 $\forall n \in M, \exists k \in Z $，使得 $n = kd$.
+
+    记 $T = \{kd|k \in Z\}$, 一方面 $\forall n \in M, n = kd \in T$,则 $M \subseteq T$, 另一方面，$d \in M, \forall k \in Z, kd \in M$, 则$T \in M$.
+
+    即 $M = T = \{kd|k \in Z\}$.
+\end{proof}
+
+令 $a$ 与 $b$ 的最大公因子表示为 $(a,b)$，满足：
+\begin{enumerate}
+    \item $(a,b)$ 既是 $a$ 的因子，也是 $b$ 的因子。
+    \item 若 $c$ 是 $a$ 和 $b$ 的公因子，则 $c \mid (a,b)$.
+\end{enumerate}
+
+\begin{proposition}
+    $S = \{ ax + by | x,y \in \mathbb{Z} \}$中最小正整数 $d$ 恰为 $a$ 和 $b$ 的最大公因子 $(a,b)$
+\end{proposition}
+
+\begin{proof}
+    易知 $S$ 为 模。
+    一方面，$(a,b)$ 同时整除 $a,b$，$d$ 可表示为 $ax+by$, 则 $(a,b) \mid ax + by = d$.
+    另一方面，因为 $d \mid a \cdot 1 + b \cdot 0$, $d \mid a \cdot 0 + b \cdot 1$, 则 $d$ 为 $a$ 和 $b$ 的公因子，即 $d \mid (a,b)$.
+
+    故 $(a,b) = d$.
+\end{proof}
+
+\begin{theorem}
+    设 $p$ 为素数且 $p \mid ab$, 则 $p \mid a$ 或 $p \mid b$.
+\end{theorem}
+
+\begin{proof}
+    只需证明 $p \nmid a$ 时， $p \mid b$ 即可。
+
+    若 $p \nmid a$, 则 $(p,a) = 1$. $\exists x,y \in \mathbb{Z}$, 使得 $ax+by=1$, 两边同时乘以 $b$,
+    \[abx+pby=b\]
+    由于 $p \mid ab$, 则 $p \mid abx + pby$, 即 $p \mid b$.
+\end{proof}
+
+\begin{theorem}[唯一分解定理]
+    任一自然数 $n$ 皆可唯一表示为素数之积
+    \[n=p_1^{a_1}p_2^{a_2}\cdots p_k^{a_k}\].
+    其中，$p_1 < p_2 < \cdots p_k$ 为素数，$a_1,a_2,\cdots, a_k$ 为自然数。
+\end{theorem}
+
+\begin{proof}
+    若 $n$ 为素数，结论成立。
+
+    若 $n$ 为素数，则至少有一个真因子 $p_1$. 若 $p_1$ 为 $n$ 的最小真因子，则 $p_1$ 无真因子为素数(反证）。
+    设 $n = p_1n_1$, 则 $1 < n_1 = \frac{n}{p_1} < n$.
+
+    重复以上过程可得， $n > n_1 > n_2> \cdot $, 此过程不可能无限下去，因此存在 $l$, 使得 $n_{l-1}$ 为素数. 把 $n_{l-1}$ 记为 $p_l$.
+    则 $$n = p_1p_2p_3 \cdots p_l$$, 即 $n$ 为有限个素数乘积。
+
+    把素因子由小到大排序，合并相同的项，可得
+    \[n=p_1^{a_1}p_2^{a_2}\cdots p_k^{a_k}\],
+    其中 $p_1 < p_2 < \cdots < p_k$ 为素数。
+    假设有另外一种分解方式，
+    \[n=q_1^{b_1}q_2^{b_2}\cdots p_e^{b_e}\],
+    其中 $q_1 < q_2 < \cdots < q_e$. 由于 $p_1 \mid n$, 则 $p_1 \mid q_1$ 或 $p_1 \mid q_2$ 或 $\cdots$ 或 $p_1 \mid q_e$ 成立。 
+    而 $p$ 和 $q$ 都为素数，则 $p_1 \in \{q_1,q_2, \cdots, q_e\}$。同理，
+    \[\{p_1,p_2,\cdots, p_k\} \subseteq \{q_1,q_2,\cdots, q_e\}\]
+    同时，
+    \[\{q_1, q_2, \cdots, q_e\} \subseteq \{p_1,P_2,\cdots,p_k\}\]
+    故 
+    \[\{p_1,p_2, \cdots, p_k\} = \{q_1,q_2,\cdots, q_e\}\]
+    其中，$k=e$, $p_i = q_i$. 
+    
+    易证，$a_i = b_i$. 故 $n$ 的表达式唯一。
+\end{proof}
+
+\end{document}

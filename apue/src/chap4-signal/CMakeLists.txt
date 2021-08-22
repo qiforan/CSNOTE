@@ -1,0 +1,5 @@
+add_executable(star star.c)
+add_executable(alarm alarm.c)
+add_executable(selfaddin5sec selfaddin5sec.c)
+add_executable(mycat slowcat.c)
+add_executable(myblock myblock.c)
