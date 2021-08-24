@@ -792,73 +792,163 @@ epoll 现在是线程安全的
 
 ## 计算机网络
 
-1. Connect 函数与非阻塞？
+### 1. Connect 函数与非阻塞？
 
-2. Accept函数与三次握手关系？
+建立socket后默认connect()函数为阻塞连接状态，在大多数实现中，connect的超时时间在75s至几分钟之间，想要缩短超时时间，可解决问题的两种方法：
 
-    Accept函数是返回已经三次握手成功的socket
+* 方法一、将socket句柄设置为非阻塞状态
 
-3. TIME_WAIT时长？为什么？如何取消？
+* 方法二、采用信号处理函数设置阻塞超时控制，当因超时执行完信号处理函数后，会结束 `connect` 的阻塞
 
-    [详解 TCP 连接的“ 三次握手 ”与“ 四次挥手 ”](https://baijiahao.baidu.com/s?id=1654225744653405133&wfr=spider&for=pc)、[详解TCP连接的“三次握手”与“四次挥手”(上)](https://www.cnblogs.com/AhuntSun-blog/p/12028636.html)、[详解TCP连接的“三次握手”与“四次挥手”(下)](https://www.cnblogs.com/AhuntSun-blog/p/12037852.html)
+### 2. Accept函数与三次握手关系？
 
-4. 报文的最大生存期与那些因素有关？
+Accept函数是返回已经三次握手成功的socket
+![socket](image/2021-08-24-13-58-54.png)
 
-    [MSL(Maximum Segment Lifetime)报文最大生存时间](https://blog.csdn.net/weixin_42764391/article/details/99820386)、[网络术语MSL/TTL/RTT](https://blog.csdn.net/u013074465/article/details/45097183)
+### 3. TIME_WAIT时长？为什么？如何取消？
 
-5. tcp的握手挥手过程？（详细）tcp为什么要连接？tcp建立连接这里你是怎么理解的？
+[详解TCP连接的“三次握手”与“四次挥手”(上)](https://www.cnblogs.com/AhuntSun-blog/p/12028636.html)
 
-6. 半连接队列？全连接队列？
+[详解TCP连接的“三次握手”与“四次挥手”(下)](https://www.cnblogs.com/AhuntSun-blog/p/12037852.html)
 
-    [关于TCP 半连接队列和全连接队列](http://jm.taobao.org/2017/05/25/525-1/)、[从一次 Connection Reset 说起，TCP 半连接队列与全连接队列](https://cjting.me/2019/08/28/tcp-queue/)、[TCP的全连接和半连接队列](https://juejin.im/post/5e01a5886fb9a016510db122)、[TCP半连接队列和全连接队列](https://blog.csdn.net/yangguosb/article/details/90644683)、[TCP 半连接队列和全连接队列满了会发生什么？又该如何应对？](https://www.cnblogs.com/xiaolincoding/p/12995358.html)
+[三次握手及失败处理](https://www.jianshu.com/p/e4cd3de320f7)
 
-7. tcp流量控制和拥塞控制？输层发生拥塞，在应用层的表现是什么
+[三次挥手及失败处理](https://network.51cto.com/art/202001/609165.htm)
 
-    [TCP流量控制、拥塞控制](https://zhuanlan.zhihu.com/p/37379780)、[TCP流量控制与拥塞控制](https://andrewpqc.github.io/2018/07/21/tcp-flow-control-and-congestion-control/)、[TCP的流量控制和拥塞控制](https://blog.csdn.net/liaoqianwen123/article/details/25429143)、[tcp流量控制，拥塞控制和可靠传输](https://troywu0.gitbooks.io/spark/content/tcp%E6%B5%81%E9%87%8F%E6%8E%A7%E5%88%B6%EF%BC%8C%E6%8B%A5%E5%A1%9E%E6%8E%A7%E5%88%B6%E5%92%8C%E5%8F%AF%E9%9D%A0%E4%BC%A0%E8%BE%93.html)
+### 4. 报文的最大生存期与那些因素有关？
 
-8. 网络编程里的reactor模型介绍下
+Windows : MSL = 2 min
+linux(Ubuntu, CentOs) : MSL = 60s
+Unix : MSL = 30s
 
-9. time_wait状态？为什么是2msl？
+[网络术语MSL/TTL/RTT](https://blog.csdn.net/u013074465/article/details/45097183)
 
-10. 有很多close_wait怎么解决？
+### 6. 半连接队列？全连接队列？
 
-    [TCP CLOSE_WAIT 过多解决方案](https://blog.csdn.net/wwd0501/article/details/78674170)、[一次服务端大量CLOSE_WAIT问题的解决](https://blog.csdn.net/yu616568/article/details/44677985)、[线上大量CLOSE_WAIT的原因深入分析](https://juejin.im/post/5c0cf1ed6fb9a04a08217fcc)、[CLOSE_WAIT连接过多的现象分析与处理](https://www.zybuluo.com/zhongdao/note/1450198)
+![tcp](image/2021-08-24-14-12-56.png)
 
-11. udp为什么是不可靠的？bind和connect对于udp的作用是什么？
+基本过程是，Server 调用 listen 监听端口，客户端使用 connect 发起连接，然后 Server 使用 accept 获取已经到达 ESTABLISHED 状态的连接，然后进行读写。
 
-12. NAT是什么？底层实现原理？
+从数据包来看：
 
-13. 对于使用tcp通信的两端，如果client已经退出，此时服务端继续send会出现什么问题？这个当然就要扯到SIGPIPE信号了？
+* Client: 发送 SYN，连接状态进入 SYN_SENT
+* Server: 收到 SYN, 创建连接状态为 SYN_RCVD/SYN_RECV 的 Socket，响应 SYN/ACK
+* Client: 收到 SYN/ACK，连接状态从 SYN_SENT 变为 ESTABLISHED，响应 ACK
+* Server: 收到 ACK，连接状态变为 ESTABLISHED
 
-15. DDOS攻击原理
+此时，双方的 Socket 都已经进入了 ESTABLISHED 状态，接下来就可以开始交换数据了。
 
-16. http/https协议，cookie/session、输入url发生了什么；
+从上面的过程中我们可以看出，Server 需要两个队列，分别存储 SYN_RCVD 状态的连接和 ESTABLISHED 状态的连接，这就是半连接队列和全连接队列。
 
-17. https，非对称加密，通信中怎么弄？为什么通信前用非对称加密，通信中要用对称？为什么不一直用非对称？
+[TCP的全连接和半连接队列](https://juejin.im/post/5e01a5886fb9a016510db122)
 
-18. xss了解吗？
+[TCP半连接队列和全连接队列](https://blog.csdn.net/yangguosb/article/details/90644683)
 
-20. TCP与UDP什么关系？
+[TCP 半连接队列和全连接队列满了会发生什么？又该如何应对？](https://www.cnblogs.com/xiaolincoding/p/12995358.html)
 
-21. tls和ssl什么区别？
+### 8. 网络编程里的reactor模型介绍下
 
-22. TCP怎样发现数据丢了，丢了会怎样处理？TCP的全双工怎么理解？TCP一端还在发但是另一端已经关闭了怎么办，就是我知道对面已经关闭连接了但是我还要向他发数据，在应用层该怎么处理？
+### 10. 有很多close_wait怎么解决？
 
-23. 什么叫面向流、面向报文？
+两次挥手后，服务器端就处于 `close_wait` 状态。大量 `close_wait` 的原因：
 
-24. UDP发送到应用层的一条数据有可能会被拆分成多个数据包吗？
+1. 没有发生第三次挥手，比如没有调用 `close`
 
-27. http1.0/1.1 和 http2.0的区别?post和get的区别?
 
-28. dns 的解析过程，DHCP
+[TCP CLOSE_WAIT 过多解决方案](https://blog.csdn.net/wwd0501/article/details/78674170)
 
-29. 大端和小端存储概念；
+[线上大量CLOSE_WAIT的原因深入分析](https://juejin.im/post/5c0cf1ed6fb9a04a08217fcc)
 
-30. 使用sendto发送大小为1024B的UDP报文，使用recvfrom每次接收64B数据，一个while循环是否能取得所有数据？
+[CLOSE_WAIT连接过多的现象分析与处理](https://www.zybuluo.com/zhongdao/note/1450198)
 
-     [关于udp socket recvfrom函数的一个易错问题： 如果应用程序指定的接收长度不够怎么办？](https://blog.csdn.net/stpeace/article/details/73893884)、[告知你不为人知的 UDP：疑难杂症和使用](https://cloud.tencent.com/developer/article/1004554)
+### 11. udp为什么是不可靠的？bind和connect对于udp的作用是什么？
 
-31. 路由表的问题
+udp是一个基于无连接的通讯协议，通讯基本模型如下:
+
+![udp](image/2021-08-24-14-21-45.png)
+
+#### udp客户端使用connect()函数
+
+udp 客户端建立了 socket 后可以直接调用 `sendto()` 函数向服务器发送数据，但是需要在 `sendto()` 函数的参数中指定目的地址/端口，但是可以调用 `connect()` 函数先指明目的地址/端口，然后就可以使用 `send()` 函数向目的地址发送数据了，因为此时套接字已经包含目的地址/端口，也就是 `send()` 函数已经知道包含目的地址/端口。
+
+#### udp客户端程序使用bind()函数
+
+udp 服务器调用了 `bind()` 函数为服务器套接字绑定本地地址/端口，这样使得客户端的能知道它发数据的目的地址/端口。
+
+服务器如果单单接收客户端的数据，或者先接收客户端的数据(此时通过 `recvfrom()` 函数获取到了客户端的地址信息/端口)再发送数据，客户端的套接字可以不绑定自身的地址/端口，因为udp在创建套接字后直接使用`sendto()`，隐含操作是，在发送数据之前操作系统会为该套接字随机分配一个合适的 udp 端口，将该套接字和本地地址信息绑定。
+
+但是，如果服务器程序就绪后一上来就要发送数据给客户端，那么服务器就需要知道客户端的地址信息和端口，那么就不能让客户端的地址信息和端口号由客户端所在操作系统分配，而是要在客户端程序指定了。怎么指定，那就是用 `bind()` 函数。
+
+#### udp服务器程序使用connect()函数
+
+`connect()` 函数可以用来指明套接字的目的地址/端口号，那么若 udp 服务器可以使用 `connect`，将导致服务器只接受这特定一个主机的请求。
+
+### 12. NAT是什么？底层实现原理？
+
+它是一种把内部私有网络地址（IP地址）翻译成合法网络IP地址的技术。因此我们可以认为，NAT在一定程度上，能够有效的解决公网地址不足的问题。
+
+NAT的基本工作原理是，当私有网主机和公共网主机通信的IP包经过NAT网关时，将IP包中的源IP或目的IP在私有IP和NAT的公共IP之间进行转换。
+
+### 13. 对于使用tcp通信的两端，如果client已经退出，此时服务端继续send会出现什么问题？这个当然就要扯到SIGPIPE信号了？
+
+### 15. DDOS攻击原理
+
+DDoS的表现形式主要有两种，一种为流量攻击，主要是针对网络带宽的攻击，即大量攻击包导致网络带宽被阻塞，合法网络包被虚假的攻击包淹没而无法到达主机；另一种为资源耗尽攻击，主要是针对服务器主机的政击，即通过大量攻击包导致主机的内存被耗尽或CPU内核及应用程序占完而造成无法提供网络服务。
+
+### 16. http/https协议，cookie/session、输入url发生了什么
+
+Cookie是在客户端的解决方案，是服务器发给客户端的特殊信息，将cookie信息存放在响应头中，然后存放在客户端中。
+
+客户端再次请求时，会把Cookie回发。服务器收到后，解析请求头的Cookie，生成对应内容。
+
+---
+
+而Session是在服务器端的机制，会在服务器保存信息。
+服务器在使用Session时，会解析客户端的请求，并通过Session id操作对应的Session，保存用户的状态信息。
+如果客户端是首次请求不包含Session，服务器就为客户端创建一个Session，并生成对应的Session id。
+
+Session的两种实现方式：
+
+* url回写，服务器回发的所有页面都带入Session id。在这些页面中点击链接，都会传入Session id，但是如果是url输入访问，就不会有Session id。
+
+* 通过Cookie来实现，将Session id存在Cookie中
+
+### 17. https，非对称加密，通信中怎么弄？为什么通信前用非对称加密，通信中要用对称？为什么不一直用非对称？
+
+HTTPS的整体过程分为证书验证和数据传输阶段，具体的交互过程如下：
+
+① 证书验证阶段：
+
+1）浏览器发起 HTTPS 请求；
+2）服务端返回 HTTPS 证书；
+3）客户端验证证书是否合法，如果不合法则提示告警。
+
+② 数据传输阶段：
+
+1）当证书验证合法后，在本地生成随机数；
+2）通过公钥加密随机数，并把加密后的随机数传输到服务端；
+3）服务端通过私钥对随机数进行解密；
+4）服务端通过客户端传入的随机数构造对称加密算法，对返回结果内容进行加密后传输。
+
+非对称加密的加解密效率是非常低的，而 http 的应用场景中通常端与端之间存在大量的交互，非对称加密的效率是无法接受的。
+
+### 18. xss了解吗？
+
+跨站点脚本（Cross-site scripting，XSS）是一种允许攻击者在另一个用户的浏览器中执行恶意脚本的脚本注入式攻击
+
+### 24. UDP发送到应用层的一条数据有可能会被拆分成多个数据包吗？
+
+UDP是基于报文发送的，从UDP的帧结构可以看出，在UDP首部采用了16bit来指示UDP数据报文的长度，因此在应用层能很好的将不同的数据报文区分开，从而避免粘包和拆包的问题。
+
+### 27. http1.0/1.1 和 http2.0的区别?post和get的区别?
+
+> GET请求没有body，只有url，请求数据放在url的querystring中；POST请求的数据在body中
+
+### 30. 使用sendto发送大小为1024B的UDP报文，使用recvfrom每次接收64B数据，一个while循环是否能取得所有数据？
+
+[关于udp socket recvfrom函数的一个易错问题： 如果应用程序指定的接收长度不够怎么办？](https://blog.csdn.net/stpeace/article/details/73893884)
+
+[告知你不为人知的 UDP：疑难杂症和使用](https://cloud.tencent.com/developer/article/1004554)
 
 32. 网络各层校验用的什么？ ARP协议？
 
@@ -872,7 +962,12 @@ epoll 现在是线程安全的
 
 33. 网络协议栈的理解
 
-      [理解 Linux 网络栈（1）：Linux 网络协议栈简单总结](https://www.cnblogs.com/sammyliu/p/5225623.html)、[如何学习 Linux 内核网络协议栈](https://segmentfault.com/a/1190000021227338)、[Linux 网络栈剖析](https://www.ibm.com/developerworks/cn/linux/l-linux-networking-stack/)、[重头梳理网络协议栈](https://www.jianshu.com/p/75c7f1a0a4e7)、[了解linux网络协议栈（四）——协议栈实现](https://blog.csdn.net/lee244868149/article/details/71248999)、[Linux网络栈](https://www.cnblogs.com/agilestyle/p/11394930.html)、[协议栈](https://www.zhihu.com/topic/20070536/hot)
+[理解 Linux 网络栈（1）：Linux 网络协议栈简单总结](https://www.cnblogs.com/sammyliu/p/5225623.html)
+[如何学习 Linux 内核网络协议栈](https://segmentfault.com/a/1190000021227338)
+[Linux 网络栈剖析](https://www.ibm.com/developerworks/cn/linux/l-linux-networking-stack/)
+[重头梳理网络协议栈](https://www.jianshu.com/p/75c7f1a0a4e7)
+[了解linux网络协议栈（四）——协议栈实现](https://blog.csdn.net/lee244868149/article/details/71248999)
+[Linux网络栈](https://www.cnblogs.com/agilestyle/p/11394930.html)、[协议栈](https://www.zhihu.com/topic/20070536/hot)
 
 34. 服务器启动到接受连接的整过过程锁调用的函数
 
@@ -884,7 +979,7 @@ epoll 现在是线程安全的
 
 38. arp协议是那一层的？arp协议是干什么的？
 
-     arp是属于网络层，用于将ip得知解析成mac地址
+arp是属于网络层，用于将ip得知解析成mac地址
 
 39. icmp协议分别位于哪层
 
@@ -892,7 +987,7 @@ epoll 现在是线程安全的
 
 40. traceroute原理
 
-     tranceroute使用IPv4的TTL字段或IPv6的跳线字段以及两种ICMP消息。它一开始向目的地发送一个TTL（或跳限）为1的UDP数据报。这个数据报导致第一跳路由器返回一个ICMP "time exceeded in transmit"（传输中超时）错误。接着它每递增TTL一次发送一个UDP数据报，从而逐步确定下一跳路由器。当某个UDP数据报达到最终目的地时，目标是由这个这个主机返回一个ICMP "port unreachable"（端口不可达）错误。这个目标通过向一个随机选取的（但愿）未被目的主机使用的端口发送UDP数据报得以实现。
+tranceroute使用IPv4的TTL字段或IPv6的跳线字段以及两种ICMP消息。它一开始向目的地发送一个TTL（或跳限）为1的UDP数据报。这个数据报导致第一跳路由器返回一个ICMP "time exceeded in transmit"（传输中超时）错误。接着它每递增TTL一次发送一个UDP数据报，从而逐步确定下一跳路由器。当某个UDP数据报达到最终目的地时，目标是由这个这个主机返回一个ICMP "port unreachable"（端口不可达）错误。这个目标通过向一个随机选取的（但愿）未被目的主机使用的端口发送UDP数据报得以实现。
 
 41. 集群和分布式有什么区别
 
@@ -902,26 +997,33 @@ epoll 现在是线程安全的
 
 44. 黏包问题
 
-     [TCP粘包问题分析和解决（全）](https://blog.csdn.net/tiandijun/article/details/41961785)、[怎么解决TCP网络传输「粘包」问题？](https://www.zhihu.com/question/20210025)、[Socket 中粘包问题浅析及其解决方案](http://www.hchstudio.cn/article/2018/d5b3/)、[为什么 TCP 协议有粘包问题](https://draveness.me/whys-the-design-tcp-message-frame/)、[TCP粘包/拆包问题](https://www.cnblogs.com/wade-luffy/p/6165671.html)、[Socket编程（4）TCP粘包问题及解决方案](https://www.cnblogs.com/QG-whz/p/5537447.html)
+[TCP粘包问题分析和解决（全）](https://blog.csdn.net/tiandijun/article/details/41961785)
+[怎么解决TCP网络传输「粘包」问题？](https://www.zhihu.com/question/20210025)
+[Socket 中粘包问题浅析及其解决方案](http://www.hchstudio.cn/article/2018/d5b3/)
+[为什么 TCP 协议有粘包问题](https://draveness.me/whys-the-design-tcp-message-frame/)
+[TCP粘包/拆包问题](https://www.cnblogs.com/wade-luffy/p/6165671.html)
+[Socket编程（4）TCP粘包问题及解决方案](https://www.cnblogs.com/QG-whz/p/5537447.html)
 
 45. UDP可靠传输实现
 
 46. 数据包mtu(最大传输单元)
 
-     [TCP/IP协议：最大传输单元MTU 和 最大分段大小MSS (TCP的分段和IP的分片)](https://blog.csdn.net/qq_26093511/article/details/78739198)、[MTU最大传输单元](https://www.jianshu.com/p/678f5e79dd71)、
+[TCP/IP协议：最大传输单元MTU 和 最大分段大小MSS (TCP的分段和IP的分片)](https://blog.csdn.net/qq_26093511/article/details/78739198)、[MTU最大传输单元](https://www.jianshu.com/p/678f5e79dd71)、
 
 47. UDP广播IP段？
 
 48. socket中 bind() accept()之后的状态
 
 49. 如果有很多从客户端发来的请求，结果大量的失败，分析原因
-      我说了网络，I/O，后来他又问从操作系统层面考虑，我说是不是socket占用了大量的端口号，然后又问端口号的最大个数
+
+我说了网络，I/O，后来他又问从操作系统层面考虑，我说是不是socket占用了大量的端口号，然后又问端口号的最大个数
 
 50. 数据从应用层  到  传输层  到  IP层 到  链路层，每一层涉及的具体的操作有哪些？
 
 51. TCP UDP IP首部多大
 
-     [TCP、UDP数据包大小的限制](https://blog.csdn.net/caoshangpa/article/details/51530685)、[IP、TCP、UDP首部详解](https://blog.csdn.net/zhangliangzi/article/details/52554439)
+[TCP、UDP数据包大小的限制](https://blog.csdn.net/caoshangpa/article/details/51530685)
+[IP、TCP、UDP首部详解](https://blog.csdn.net/zhangliangzi/article/details/52554439)
 
 52. 服务器方，如果两个进程同时占用80端口，客户端的HTTP报文怎么处理？会报错吗？
 
