@@ -54,7 +54,7 @@ epoll 现在是线程安全的
 
 僵尸进程：子进程运行结束，父进程却没有使用 `wait() / waitpid()` 来清理子进程的进程信息，仍在内核的进程表中占据一条记录。
 
-### 5. 进程能不能绑定到 cpu
+### 5. 进程绑定 cpu
 
 第一种：shell 命令 taskset
 
@@ -153,13 +153,33 @@ epoll 现在是线程安全的
 
 [内核线程、轻量级进程、用户线程三种线程概念解惑（线程≠轻量级进程）](https://blog.csdn.net/gatieme/article/details/51481863)
 
-[进程、线程及进程调度算法](https://www.jianshu.com/p/84957c2644d8)、
+[进程、线程及进程调度算法](https://www.jianshu.com/p/84957c2644d8)
 
 ## 线程
 
-### 1. 线程池如何开启一个新线程？
+### 线程池的好处
 
-### 2. 线程池
+1. 降低资源消耗。通过重复利用已创建的线程，降低线程创建和销毁造成的消耗。
+2. 提高响应速度。当任务到达时，任务可以不需要等到线程创建就能立即执行。
+3. 增加线程的可管理型。线程是稀缺资源，使用线程池可以进行统一分配，调优和监控。
+
+### 线程池大小设置
+
+需要区分任务是计算密集型还是I/O密集型
+
+对于计算密集型，设置 `线程数 = CPU数 + 1`，通常能实现最优的利用率。
+
+对于I/O密集型，网上常见的说法是设置 `线程数 = CPU数 * 2` ，这个做法是可以的，但个人觉得不是最优的。
+
+在我们日常的开发中，我们的任务几乎是离不开I/O的，常见的网络I/O（RPC调用）、磁盘I/O（数据库操作），并且I/O的等待时间通常会占整个任务处理时间的很大一部分，在这种情况下，开启更多的线程可以让 CPU 得到更充分的使用，一个较合理的计算公式如下：
+
+`线程数 = CPU数 * CPU利用率 * (任务等待时间 / 任务计算时间 + 1)`
+
+[腾讯面试官：线程池要设置多大](https://cloud.tencent.com/developer/article/1605149)
+
+### 线程池如何开启一个新线程？
+
+### 线程池实现
 
 [线程池的C++实现](https://zhuanlan.zhihu.com/p/61464921)
 
@@ -237,11 +257,17 @@ epoll 现在是线程安全的
 
 ## 文件系统
 
-### 2. 五种IO模型？
+### 五种IO模型？
+
+同步IO：阻塞IO、非阻塞IO、IO多路复用、信号驱动IO；
+
+异步IO
 
 [五种IO模型（详解+形象例子说明）](https://blog.csdn.net/ZWE7616175/article/details/80591587)
 [IO概念和五种IO模型](https://www.cnblogs.com/shengguorui/p/11949282.html)
 [五种IO模型透彻分析](https://www.cnblogs.com/f-ck-need-u/p/7624733.html)
+
+## select/poll/epoll
 
 ### 3. select和epoll有什么区别？epoll的LT和ET模式？LT和ET适用场景？
 
@@ -251,7 +277,11 @@ epoll 现在是线程安全的
 
 [I/O多路复用之select、epoll的实现和区别 ，ET与LT模式](https://blog.csdn.net/qingcunsuiyue/article/details/66477777)
 
-### 4. select/poll/epoll、虚拟内存、用户态内核态；
+[epoll“传说中”的性能](https://blog.csdn.net/historyasamirror/article/details/5833259)
+
+[Linux下实现epoll服务器和缺点总结](https://blog.csdn.net/lishitao_578/article/details/73810623)、
+
+#### 什么情况下epoll效率会比select\poll低,epoll底层的实现原理，如何保证大部分情况下效率优于select
 
 ### 5. Linux中，文件名存在哪里？
 
@@ -261,33 +291,23 @@ epoll 现在是线程安全的
 
 ### 6. 文件索引有哪些？
 
-### 7. select和epoll有没有最大描述符限制，epoll的限制体现在哪？epoll底层用了哪些数据结构，红黑树和链表分别是用来干啥的，红黑树的key是什么？
-
-[epoll“传说中”的性能](https://blog.csdn.net/historyasamirror/article/details/5833259)
-
-[Linux下实现epoll服务器和缺点总结](https://blog.csdn.net/lishitao_578/article/details/73810623)、
-
 ### 8. 从磁盘读取数据到CPU中间经过的介质
 
 硬盘数据--->硬盘缓存---->内存---->CPU缓存--->CPU寄存器与运算器
 
 ### 10. IOCP
 
-11. linux系统怎么区别文件类型
+### 11. linux系统怎么区别文件类型
 
-[linux操作系统文件类型有哪几种,有什么区别?](https://zhidao.baidu.com/question/511065836.html)、[Linux系统目录结构及文件类型区分](https://www.cnblogs.com/miaotianjie/p/8587650.html)、
+[linux操作系统文件类型有哪几种,有什么区别?](https://zhidao.baidu.com/question/511065836.html)
 
-### 12. 五种io模型
-
-同步IO：阻塞IO、非阻塞IO、IO多路复用、信号驱动IO；
-
-异步IO
-
-### 13. 什么情况下epoll效率会比select\poll低,epoll底层的实现原理，如何保证大部分情况下效率优于select
+[Linux系统目录结构及文件类型区分](https://www.cnblogs.com/miaotianjie/p/8587650.html)
 
 ### 14. 操作系统读写操作，写文件，read的三种模式，写成功是怎样的，什么情况下写操作会失败
 
-### 15. [Open/Read/Write和Fopen/Fread/Fwrite的区别](https://www.cnblogs.com/ldp-web/archive/2011/10/21/2220180.html)、[多进程同时写一个文件会怎样？（待修订）](https://blog.csdn.net/yangbodong22011/article/details/63064166/)
+[Open/Read/Write和Fopen/Fread/Fwrite的区别](https://www.cnblogs.com/ldp-web/archive/2011/10/21/2220180.html)
+
+[多进程同时写一个文件会怎样？（待修订）](https://blog.csdn.net/yangbodong22011/article/details/63064166/)
 
 ## 中断
 
