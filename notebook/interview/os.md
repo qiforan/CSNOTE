@@ -259,29 +259,80 @@ epoll 现在是线程安全的
 
 ### 五种IO模型？
 
-同步IO：阻塞IO、非阻塞IO、IO多路复用、信号驱动IO；
+同步IO：
+
+* 阻塞IO
+
+* 非阻塞IO
+* IO多路复用
+
+* 信号驱动IO
 
 异步IO
 
-[五种IO模型（详解+形象例子说明）](https://blog.csdn.net/ZWE7616175/article/details/80591587)
-[IO概念和五种IO模型](https://www.cnblogs.com/shengguorui/p/11949282.html)
-[五种IO模型透彻分析](https://www.cnblogs.com/f-ck-need-u/p/7624733.html)
+### 零拷贝
 
-## select/poll/epoll
+[零拷贝(Zero-copy) 浅析及其应用](https://www.cnblogs.com/rickiyang/p/13265043.html)
 
-### 3. select和epoll有什么区别？epoll的LT和ET模式？LT和ET适用场景？
+## IO复用
 
-[select、poll、epoll的区别以及epoll的两种模式（LT、ET）以及实现](https://blog.csdn.net/qq_41038824/article/details/88537640)
+select，poll，epoll 都是 IO 多路复用的机制。
 
-[epoll两种类型ET和LT区别(结合实际例子)](https://blog.csdn.net/cws1214/article/details/47662705)
+### select
 
-[I/O多路复用之select、epoll的实现和区别 ，ET与LT模式](https://blog.csdn.net/qingcunsuiyue/article/details/66477777)
+```c
+int select(int maxfdp1,fd_set *readset,fd_set *writeset,fd_set *exceptset,const struct timeval *timeout);
+```
 
-[epoll“传说中”的性能](https://blog.csdn.net/historyasamirror/article/details/5833259)
+传人 3 个 `fd_set` 集合，监视感兴趣的读、写、异常的描述符，可设置超时时间，返回就绪的操作符数目（超时则为0，若出错则为-1）。
 
-[Linux下实现epoll服务器和缺点总结](https://blog.csdn.net/lishitao_578/article/details/73810623)、
+* 调用 `select` 函数时，需要把 `fd_set` 集合从用户态拷贝到内核态，在内核遍历传递进来的所有 `fd_set`
+* `fd_set` 数目限制，最多 1024
 
-#### 什么情况下epoll效率会比select\poll低,epoll底层的实现原理，如何保证大部分情况下效率优于select
+### poll
+
+```c
+int poll(struct pollfd *fds, nfds_t nfds, int timeout);
+```
+
+poll 的机制与 select 几乎相同，会对管理的描述符进行轮询操作，并根据描述符的状态进行相应的处理。
+
+select 函数中，内核对 fd_set 集合的大小做出了限制，大小不可变为1024；而 poll 函数中，并没有最大文件描述符数量的限制（基于链表存储）。
+
+### epoll
+
+```c
+int epoll_create(int size);
+int epoll_ctl(int epfd, int op, int fd, struct epoll_event *event);
+int epoll_wait(int epfd, struct epoll_event * events, int maxevents, int timeout);
+```
+
+epoll 使用一个文件描述符管理多个描述符，它将文件描述符的事件放入内核的一个事件表中，从而在用户空间和内核空间的复制操作只用实行一次即可。
+
+epoll 提供了两种模式，一种是水平触发，一种是边缘触发。边缘触发与水平触发相比较，可以使用户空间程序可能缓存 IO 状态，并减少 epoll_wait 的调用，从而提高应用程序的效率。
+
+如果使用 LT 模式的话，系统中一旦有大量不需要读写的就绪文件描述符，每次调用 epoll_wait 都会返回，大大降低处理程序检索自己关心的就绪文件描述符的效率。
+
+如果使用的是 ET 模式，当被监控的文件描述符上有可读写事件发生时，epoll_wait 会通知处理程序去读写，如果这次没有把数据全部读写完，下次调用 epoll_wait 不会通知你。
+
+### select，poll，epoll 之间的对比
+
+* IO 效率：select 只知道有 IO 事件发生，却不知道是哪几个流，只能采取轮询所有流的方式，故其具有 O(n) 的无差别轮询复杂度，处理的流越多，无差别轮询时间就越长；poll 与 select 并无区别，它的时间复杂度也是 O(n)；epoll 会将哪个流发生了怎样的 IO 事件通知我们（当描述符就绪时，系统注册的回调函数会被调用，将就绪描述符放到 readyList 里面），它是事件驱动的，其时间复杂度为 O(1)
+* 操作方式：select 和 poll 都是采取遍历的方式，而 epoll 则是采取了回调的方式
+* 底层实现：select 的底层实现为数组，poll 的底层实现为链表，而 epoll 的底层实现为 **红黑树**
+* 最大连接数：select 的最大连接数为 1024 或 2048，而 poll 和 epoll 是无上限的
+* 对描述符的拷贝：select 和 poll 每次被调用时都会把描述符集合从用户态拷贝到内核态，而 epoll 在调用 epoll_ctl 时会拷贝进内核并保存，之后每次 epoll_wait 时不会拷贝
+* 性能：epoll 在绝大多数情况下性能远超 select 和 poll，但在连接数少并且连接都十分活跃的情况下，select 和 poll 的性能可能比 epoll 好，因为 epoll 的通知机制需要很多函数回调
+
+### LT和ET适用场景
+
+LT 模式的优点主要在于其简单且稳定，不容易出现问题，缺点是效率低，容易出现饥饿。
+
+ET 优点是减少了 epoll 的触发次数，效率高，缺点是代码的复杂度增加。
+
+### select/poll/epoll 效率
+
+![benchmark](image/2021-09-01-23-58-17.png)
 
 ### 5. Linux中，文件名存在哪里？
 
