@@ -1,5 +1,0 @@
-link_libraries(pthread)
-add_executable(creat1 creat1.c)
-add_executable(abcd abcd.c)
-add_executable(primer_pool primer_pool.c)
-add_executable(cleanup cleanup.c)
