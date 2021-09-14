@@ -152,3 +152,94 @@ decltype(even) *fun(int i)
 	return (i % 2) ? &odd : &even;
 }
 ```
+### 函数重载
+
+同一作用域内，几个函数名字相同，形参列表不同，称之为 **重载(overloaded)**。
+
+#### 重载和 const 形参
+
+顶层 `const` 不影响传入函数的对象。所以，一个拥有顶层 `const` 的形参无法与另一个没有顶层 `const` 形参区分开来。
+
+```cpp
+// 二者雷同
+void fun(const int);
+void fun(int);
+```
+
+但是如果形参是某个类型的指针或引用，则可以区分指向是常量对象还是非常量对象来实现函数重载。此时，`const` 是底层的。
+
+```cpp
+// 二者不同
+void fun(const int*);
+void fun(int*);
+// 二者不同
+void fun(const int&);
+void fun(int&);
+```
+
+因为 `const` 不能转换为其他类型，所以只能把 `const` 对象传递给 `const` 形参。而非常量可以转换成 `const`，所以上面的四个函数也可以作用于非常量对象或指向非常量对象的指针。
+
+#### `const_cast` 和重载
+
+`const_cast` 可用于函数重载。
+
+```cpp
+const string &shorterString(const string& s1, const string& s2)
+{
+	return s1.size() <= s2.size() ? s1 : s2;
+}
+string &shorterString(string &s1, string &s2)
+{
+	auto &r = shorterString(const_cast<const string&>(s1),const_cast<const string&>(s2));
+	return const_cast<string&>(r);
+}
+```
+
+第二个版本里，先将实参强制转换成对 `const` 的引用，然后调用 `const` 版本的函数。
+
+### 特殊用途语言特性
+
+#### 默认实参
+
+函数调用时，只能省略尾部的参数。实参按照位置解析，默认实参负责填补函数调用缺少的尾部实参。
+
+局部变量不能作为默认实参。除此之外，只要表达式的类型能转换成形参所需的类型，就可以作为默认实参。
+
+用作默认实参的名字在函数声明所在的定义域内解析，而求值过程发生在函数调用。
+
+#### 内联函数和 `constexpr` 函数
+
+将函数指定为内联函数，通常就是将它在每个调用点上 **内联地** 展开。内联函数可以避免函数调用的开销。
+
+定义为内联函数是对编译器的请求，编译器不一定执行。
+
+一般来说，内联用于优化规模小、调用频繁的函数。很多编译器不支持内联递归函数。
+
+`constexpr` 函数是指能用于常量表达式的函数。定义时遵循几项约定：函数的返回值和形参的类型都是字面值类型，而且只能有一条 `return` 语句。
+
+`constexpr` 函数被隐式地指定为内联函数。`constexpr` 函数不一定返回常量表达式。
+
+
+#### 调试
+
+`assert` 是一种 **预处理宏**，使用一个表达式作为它的条件:
+
+```cpp
+#include <cassert>
+assert(expr);
+```
+
+如果表达式为假，则输出信息并终止程序的执行，否则什么也不做。常用于检查 “不可能” 的情况。
+
+如果定义了 `NDEBUG`，则 `assert` 什么也不做。可以使用 `#define` 语句定义，也可以通过命令行选项关闭。
+
+```shell
+$ CC -D NDEBUG main.c
+```
+
+在调试过程中，可以通过 `__func__` 打印当前调试的函数的名字。除了这些，还有
+
+* `__FILE__` 存放文件名的字符串字面量。
+* `__LINE__` 存放当前行号的整形字面量。
+* `__TIME__` 编译时间的字符串字面量。
+* `__DATE__` 编译日期的字符串字面量。
