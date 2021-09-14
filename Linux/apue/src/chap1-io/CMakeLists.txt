@@ -1,0 +1,5 @@
+add_executable(mycpy mycpy.c)
+add_executable(getline_test getline_test.c)
+add_executable(fd_dup fd_dup.c)
+add_executable(delete_line_10 delete_line_10.c)
+add_executable(chap1_tty tty.c)

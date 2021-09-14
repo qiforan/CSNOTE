@@ -1,0 +1,8 @@
+file(GLOB_RECURSE all_files *.cpp)
+foreach(v ${all_files})
+#    STRING(REGEX REPLACE ".+/(剑指)\\..*" "coding_interviews_" test_var ${v})
+#    MESSAGE(${test_var})
+    STRING(REGEX REPLACE " " "_" ${v} ${v})
+    STRING(REGEX REPLACE ".+/(.+)\\..*" "\\1" exe_name ${v})
+    add_executable(${exe_name} ${v})
+endforeach(v ${all_files})

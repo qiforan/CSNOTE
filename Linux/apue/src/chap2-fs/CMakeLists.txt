@@ -1,0 +1,7 @@
+add_executable(fs fs.c)
+add_executable(emptyfile emptyfile.c)
+add_executable(ftype ftype.c)
+add_executable(glob glob.c)
+add_executable(readdir readdir.c)
+add_executable(mydu mydu.c)
+add_executable(getpasswd getpasswd.c)

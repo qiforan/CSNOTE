@@ -1,0 +1,6 @@
+add_executable(mydate mydate.c)
+add_executable(primer primer.c)
+add_executable(fork1 fork1.c)
+add_executable(jump jump.c)
+add_executable(exec exec.c)
+add_executable(myout myout.c)

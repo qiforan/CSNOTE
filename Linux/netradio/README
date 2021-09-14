@@ -1,0 +1,32 @@
+C/S based stream player
+
+## server
+
+## client
+
+## note
+
+1. struct initialization
+
+2. zero length array in structure
+
+3. `getopt_long()` and `getopt()`
+
+`getopt_long()` extends `getopt()` with accepting long option.
+If a short option found, function return the short option with `optarg` pointing to arguments.
+If a long option found, function whether return val if flag is NULL otherwise 0.
+
+```c
+struct option {
+    const char *name;
+    int         has_arg;
+    int        *flag;
+    int         val;
+};
+```
+
+4. multicast
+
+5. pipe
+
+6. dup2

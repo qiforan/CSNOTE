@@ -1,0 +1,40 @@
+# 语言: None, Cpp, Java, JavaScript, ObjC, Proto, TableGen, TextProto
+Language: Cpp
+
+# 基于某一主题上的修改
+BasedOnStyle: WebKit
+
+# 缩进宽度
+IndentWidth: 4
+
+# 缩进case标签
+IndentCaseLabels: false
+
+# 访问说明符(public、private等)的偏移
+AccessModifierOffset: -4
+
+# 每行字符的限制，0表示没有限制
+ColumnLimit: 80
+
+# 对齐连续的尾随的注释
+AlignTrailingComments: true
+
+# 指针和引用的对齐: Left, Right, Middle
+PointerAlignment: Left
+
+
+BraceWrapping:
+  BeforeElse:	true
+  AfterFunction:	true
+
+BreakBeforeBinaryOperators:	None
+BreakBeforeBraces:	Custom
+
+# 每行字符的限制，0表示没有限制
+ColumnLimit:	80
+
+AlignAfterOpenBracket: true
+
+Cpp11BracedListStyle:  true
+
+SpaceBeforeCpp11BracedList:  false
