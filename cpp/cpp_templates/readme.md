@@ -85,6 +85,27 @@ void foo()
 
 > 零值对于 `bool` 类型来说是 `false`; 对于指针类型来说是 `nullptr`.
 
+### Using `this->`
+
+如果父类是模板类，直接调用父类成员的话，会找不到该变量。
+
+```cpp
+template<typename T>
+   class Base {
+     public:
+       void bar();
+};
+template<typename T>
+class Derived : Base<T> {
+    public:
+    void foo() {
+        bar(); // calls external bar() or error 
+    }
+}
+```
+
+可以使用 `this->` 或者 `Base<T>::`。
+
 ### 原生数组和字符串
 
 如果给函数参数传数组引用，就不会有指针退化。
@@ -99,3 +120,7 @@ bool less(T (&a)[N], T (&b)[M])
     }
 }
 ```
+
+## 6 Move Semantics and `enable_if<>`
+
+### 6.1 Perfect Forwarding
