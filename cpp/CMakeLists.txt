@@ -1,0 +1,6 @@
+cmake_minimum_required(VERSION 3.10)
+project(cpp)
+set(CMAKE_CXX_STANDARD 17)
+add_subdirectory(boost/src)
+add_subdirectory(temp)
+add_subdirectory(c11&14/src)
