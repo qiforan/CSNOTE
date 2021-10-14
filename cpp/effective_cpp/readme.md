@@ -109,7 +109,61 @@ static 对象生命周期从构造出来开始直至程序结束。这种对象�
 
 
 
-## 条款 5
+## 条款 5 构造函数
 
-一个类必须有默认构造函数、拷贝构造函数、赋值构造函数、析构函数，如果没有显式声明，编译器会隐式声明，且都是 public & inline.
-编译器生成的默认构造函数和析构函数调用基类构造函数、non-static 成员变量的构造函数或析构函数。
+一个类必须有默认构造函数、copy 构造函数、copy 赋值操作符、析构函数，如果没有显式声明，编译器会隐式声明，且都是 `public & inline`.
+
+编译器生成的默认构造函数或析构函数只会调用基类构造函数或析构函数、non-static 成员变量的构造函数或析构函数。
+
+对于 copy 构造函数和 copy 赋值操作符，编译器创建的版本只是把来源对象中的每一个 non-static 成员变量拷贝到目标对象。
+
+编译器构造出来的  copy 赋值操作符需合法且有意义。如果一个类的成员有引用的话，则需要自定义 copy 赋值操作符。
+
+## 条款 6 拒绝编译器生成的函数
+
+为了阻止编译器自动生成的函数（见条款 5），可以手动将其声明为 `private` 并不予实现。也可以 private 继承 `Uncopyable`.
+
+## 条款 7 基类析构函数为 virtual
+
+当 derived class 对象由一个 base class 指针删除时，如果 base class 的析构函数为 non-virtual，其行为是未定义的，即可能 对象中 derived 成分没有被销毁，造成资源泄露。
+
+解决办法是给 base class 一个 virtual 析构函数。
+
+无端地将所有 class 地析构函数声明为 virtual 是错误的，这会增大 class 的体积。常见的做法是，当 class 内至少含一个 virtual 函数，才声明 virtual 析构函数。
+
+给 base class 一个 virtual 析构函数只适用用 polymorphic base class 身上。
+
+## 条款 8 析构函数与异常
+
+## 条款 48 初涉模板元编程
+
+模板元编程(TMP) 是编写 template-based C++ 程序并执行于编译期的过程。
+
+模板元编程使得某些困难甚至不可能的事情变得容易。由于模板元编程执行于 C++ 编译期，因此可以将某些运行期才能检测到的错误提前检测出来。另外，使用模板元编程的 C++ 程序有较小的可执行文件、较短的运行期、较少的内存需求。缺点是增加了编译时间。
+
+## 条款 49 了解 new-handler
+
+当 `operator new` 无法进行内存分配，就会抛异常。在抛异常前，会调用错误处理函数，`new-handler`。客户可以通过调用 `set_new_handler` 定制这个函数。
+
+```cpp
+namespace std {
+    typedef void (*new_handler)();
+    new_handler set_new_handler(new_handler p) throw();
+}
+```
+
+`set_new_handler` 的参数是一个指针，指向无法分配足够内存时调用的函数，返回一个指针，指向被替换的 new-handler 函数。
+
+好的 `new-handler` 应该：
+
+* 让更多内存被使用。
+
+* 安装另一个 new-handler
+
+* 卸除 new-handler
+
+* 抛出 `bad_alloc`
+
+* 不返回，通常 `abort` 或 `exit`.
+
+

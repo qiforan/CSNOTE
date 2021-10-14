@@ -1,0 +1,1 @@
+add_executable(handler_outofmem src/handler_out_of_mem.cpp)
