@@ -143,7 +143,7 @@ static 对象生命周期从构造出来开始直至程序结束。这种对象�
 
 ## 条款 49 了解 new-handler
 
-当 `operator new` 无法进行内存分配，就会抛异常。在抛异常前，会调用错误处理函数，`new-handler`。客户可以通过调用 `set_new_handler` 定制这个函数。
+当 `operator new` 无法进行内存分配，就会抛异常。在抛异常前，会调用错误处理函数，`new_handler`。客户可以通过调用 `set_new_handler` 定制这个函数。
 
 ```cpp
 namespace std {
@@ -156,7 +156,7 @@ namespace std {
 
 好的 `new-handler` 应该：
 
-* 让更多内存被使用。
+* 让更多内存被使用
 
 * 安装另一个 new-handler
 
