@@ -135,6 +135,115 @@ static 对象生命周期从构造出来开始直至程序结束。这种对象�
 
 ## 条款 8 析构函数与异常
 
+析构函数最好不要抛出异常。原因：
+
+1. 抛出异常后的代码不会执行，可能会造成资源泄露。
+
+2. 在异常的传播过程中进行栈展开。在栈展开的过程中就会调用已经在栈构造好的对象的析构函数来释放资源，此时若其他析构函数本身也抛出异常，则前一个异常尚未处理，又有新的异常，会造成程序崩溃。
+
+解决办法：
+
+1. 如果异常出现在析构函数里，应该捕捉异常，而不是抛出异常。
+
+2. 异常处理应该出现在普通函数而非析构函数。
+
+## 条款 9 构造函数和析构函数不调用 virtual 函数
+
+
+* 不要在构造函数中调用虚函数的原因：因为父类对象会在子类之前进行构造，此时子类部分的数据成员还未初始化， 因此调用子类的虚函数是不安全的，故而C++不会进行动态联编。
+
+* 不要在析构函数中调用虚函数的原因：析构函数是用来销毁一个对象的，在销毁一个对象时，先调用子类的析构函数，然后再调用基类的析构函数。所以在调用基类的析构函数时，派生类对象的数据成员已经“销毁”，这个时再调用子类的虚函数已经没有意义了。
+
+## 条款 10 `operator =` 返回 reference to *this
+
+为了实现连锁赋值，赋值操作符必须返回一个 reference 指向操作符的左侧实参。
+
+```cpp
+class Widget {
+    Widget& operator=(const Widget& rhs)
+    {
+        ...
+        return *this;
+    }
+    ...
+};
+```
+
+[c++中有些重载运算符为什么要返回引用？](https://www.zhihu.com/question/22821783)
+
+## 条款 11 `operator=` 处理自我赋值
+
+自我赋值可能出现问题
+
+```cpp
+class Bitmap {...};
+class Widget {
+    Bitmap *pb;
+};
+Widget& Widget::operator=(const Widget &rhs)
+{
+    delete pb;
+    pb = new Bitmap(*rhs.pb);
+    return *this;
+}
+```
+
+如果 `*this` 和 `rhs` 是同一个对象，就会出现指针指向一个被删除的对象。
+
+解决办法：
+
+```cpp
+if(this == &rhs) return *this; // 证同测试，identity test
+```
+
+这样只解决了部分问题：不是异常安全的，如果 `new` 发生了异常，指针仍指向一块被删除的对象。
+调换 `new` 和 `delete` 的先后顺序可以解决问题，唯一的问题是如果 `*this` 和 `rhs` 相同时会有效率问题。
+
+## 条款 12 复制对象勿忘了每一个成分
+
+实现 copy 复制构造函数时，不要忘了每一个成分：当添加一个成员变量时，同时修改函数。如果忘记，编译器并不会提醒你。
+
+同时，不要忘记复制 base class 的成分。
+
+## 条款 13 对象管理资源
+
+把资源放入对象中，便可以倚赖 **析构函数** 自动调用机制确保资源被释放。
+
+两个常用的 RAII classes 是 `shared_ptr` 和 `unique_ptr`。
+
+## 条款 14 资源管理类小心 copy
+
+处理 RAII 类的复制，一般有两种情况：
+
+1. 禁止复制
+
+2. 使用引用计数
+
+## 条款 18 接口设计
+
+
+
+## 条款 22 成员变量私有化
+
+将成员变量设置为 `private` 可以更精确地控制对成员变量的访问。
+
+```cpp
+class AccessLevels {
+public:
+    int getReadOnly() const { return readOnly;}
+    void setReadWrite(int value) { readWrite = value;}
+    int getReadWrite() const { return readWrite;}
+    void setWriteOnly(int value) { writeOnly = value;}
+private:
+    int noAccess;
+    int readOnly;
+    int readWrite;
+    int writeOnly;
+}
+```
+
+通过函数来访问成员变量，日后可以改变成员变量而不会对 class 的使用者造成影响。
+
 ## 条款 48 初涉模板元编程
 
 模板元编程(TMP) 是编写 template-based C++ 程序并执行于编译期的过程。
