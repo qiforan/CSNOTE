@@ -73,7 +73,7 @@ private:
 
 如果你想获得 `define` 实现宏的效果（减少函数调用），可以使用 `template inline`.
 
-## 条款 3
+## 条款 3 尽可能使用 `const`
 
 `const` 可以修饰全局变量，也可以修饰文件、函数等。
 
@@ -88,7 +88,6 @@ private:
 把某些成员函数限定为 `const`, 一来更易理解函数的含义，二来通过“操作 const 对象”可以改善代码效率，参考 条款 20.
 
 添加 `const` 属性可以导致重载，包括给参数添加 `const`.
-
 
 ## 条款 4 构造函数与初始化
 
@@ -109,7 +108,7 @@ static 对象生命周期从构造出来开始直至程序结束。这种对象�
 
 
 
-## 条款 5 构造函数
+## 条款 5 默认生成的构造函数
 
 一个类必须有默认构造函数、copy 构造函数、copy 赋值操作符、析构函数，如果没有显式声明，编译器会隐式声明，且都是 `public & inline`.
 
@@ -121,17 +120,21 @@ static 对象生命周期从构造出来开始直至程序结束。这种对象�
 
 ## 条款 6 拒绝编译器生成的函数
 
-为了阻止编译器自动生成的函数（见条款 5），可以手动将其声明为 `private` 并不予实现。也可以 private 继承 `Uncopyable`.
+为了阻止编译器自动生成的函数（条款 5），可以手动将其声明为 `private` 并不予实现。也可以 private 继承 `Uncopyable`.
 
 ## 条款 7 基类析构函数为 virtual
 
 当 derived class 对象由一个 base class 指针删除时，如果 base class 的析构函数为 non-virtual，其行为是未定义的，即可能 对象中 derived 成分没有被销毁，造成资源泄露。
 
-解决办法是给 base class 一个 virtual 析构函数。
+解决办法:
 
-无端地将所有 class 地析构函数声明为 virtual 是错误的，这会增大 class 的体积。常见的做法是，当 class 内至少含一个 virtual 函数，才声明 virtual 析构函数。
+设置 base class 析构函数为 virtual。
 
-给 base class 一个 virtual 析构函数只适用用 polymorphic base class 身上。
+注意：
+
+将所有 class 的析构函数声明为 virtual 是错误的，这会增大 class 的体积。常见的做法是，当 class 内至少含一个 virtual 函数，才声明 virtual 析构函数。
+
+给 base class 一个 virtual 析构函数只适用 polymorphic base class 身上。
 
 ## 条款 8 析构函数与异常
 
@@ -156,7 +159,7 @@ static 对象生命周期从构造出来开始直至程序结束。这种对象�
 
 ## 条款 10 `operator =` 返回 reference to *this
 
-为了实现连锁赋值，赋值操作符必须返回一个 reference 指向操作符的左侧实参。
+为了实现 **连锁赋值**，赋值操作符必须返回一个 reference 指向操作符的左侧实参。
 
 ```cpp
 class Widget {
@@ -197,13 +200,14 @@ if(this == &rhs) return *this; // 证同测试，identity test
 ```
 
 这样只解决了部分问题：不是异常安全的，如果 `new` 发生了异常，指针仍指向一块被删除的对象。
+
 调换 `new` 和 `delete` 的先后顺序可以解决问题，唯一的问题是如果 `*this` 和 `rhs` 相同时会有效率问题。
 
 ## 条款 12 复制对象勿忘了每一个成分
 
-实现 copy 复制构造函数时，不要忘了每一个成分：当添加一个成员变量时，同时修改函数。如果忘记，编译器并不会提醒你。
+手动实现 copy 复制构造函数时，不要忘了每一个成分：当添加一个成员变量时，同时修改函数。如果忘记，编译器并不会提醒你。
 
-同时，不要忘记复制 base class 的成分。
+不要忘记复制 base class 的成分。
 
 ## 条款 13 对象管理资源
 
@@ -219,9 +223,111 @@ if(this == &rhs) return *this; // 证同测试，identity test
 
 2. 使用引用计数
 
+## 条款 15 RAII 类应该提供对原始资源的访问接口
+
+许多 API 直接处理原始资源，因此需要将 RAII 对象转换为原始资源。
+
+显示转换：提供 `get()` 函数。
+
+隐式转换：重载操作符（`*`,`->`,`conversion operator`)。
+
+[what is operator class_name() const?](https://stackoverflow.com/questions/19666392/what-is-operator-class-name-const)
+
+显式转换较为麻烦，隐式转换可能会增加错误发生的机会。
+
+## 条款 16 delete 数组
+
+删除指针所指空间除了会归还空间，会先调用析构函数。问题是被删除的指针可能指向单个对象，也可能指向对象数组。
+
+```cpp
+delete obj1; // delete one object
+delete [] obj2; // delete object array.
+```
+
+如果对数组形式做 `typedef` 动作尤为要注意。
+
+## 条款 17 独立语句将 newed 对象放置智能指针
+
+```cpp
+processWidget(shared_ptr<Widget>(new Widget), priority());
+```
+
+C++ 并无规定参数执行顺序，以上语句可能有如下顺序：
+
+1. 执行 `new Widget`
+2. 执行 `priority()`
+3. 调用 `shared_ptr` 构造函数
+
+如果 2 中发生异常，3执行不了，就会造成资源泄露。
+
+解决办法：
+
+拆分语句，手动确定上述顺序
+
+```cpp
+int priority = priority();
+processWidget(shared_ptr<Widget>(new Widget), priority);
+```
+
+
 ## 条款 18 接口设计
 
+接口应易于使用。
 
+```cpp
+Date(int month, int day, int year);
+Date(const Month& month, const Day& day, const Year& year);
+```
+
+前者至少有两个问题，容易以错误次序传递参数；容易传递无效参数。
+
+可以通过导入新类型预防此类问题，如后者。
+
+预防客户端错误的另一个方法是限制类型内什么事可做，什么不可做。常见的限制是加上 `const`.
+
+**避免类型的行为与内置类型不一致**，除非有不得不做的理由。
+
+## 条款 19 设计 class
+
+规范：
+
+* 对象如何创建和销毁
+
+* 初始化和赋值的区别
+
+* `passed by value` 意味着什么
+
+* 什么是新 type 的合法值
+
+* 需要继承吗
+
+* 与其他类型之间的转换
+
+* 需要什么样的操作符和函数
+
+* 哪些函数是不需要的（设为 private)
+
+* 一般化，是否需要 `template`
+
+## 条款 20 `pass-by-reference-to-const`
+
+`pass-by-reference-to-const` 方式效率较高，因为没有任何新对象被创建。`const` 保证传入的参数不被改变。
+
+当把一个派生类对象赋给一个基类对象时，会发生 **对象切割**。当一个 `derived class` 对象以 by value 方式传递并视为一个 `base class` 对象时，`base class` 的 copy 构造函数会被调用，`derived class`部分会被切割掉。
+
+传引用可以避免对象切割问题。
+
+对于内置类型、STL的迭代器和函数对象，`pass-by-value` 比较适当。
+
+>大部分迭代器都是比较小的，复制构造函数一般也只是平凡复制，复制开销并不大，反倒传引用因为经常需要间接访问所以影响性能。
+
+## 条款 21 函数返回引用
+
+函数盲目地返回引用可能会导致程序错误或内存泄露。
+
+将一个函数内部的变量（on stack)通过传引用的方式返回会导致函数返回前变量已经析构。
+
+在 heap 新建变量并返回引用，容易忘记析构，造成内存泄露。
 
 ## 条款 22 成员变量私有化
 
@@ -243,6 +349,10 @@ private:
 ```
 
 通过函数来访问成员变量，日后可以改变成员变量而不会对 class 的使用者造成影响。
+
+## 条款 23 non-member、non-friend 函数替换 member 函数
+
+
 
 ## 条款 48 初涉模板元编程
 
