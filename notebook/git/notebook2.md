@@ -52,3 +52,17 @@ git branch -m main
 # Finally, force update your repository
 git push -f origin main
 ```
+
+- 配置 SSH 代理访问 Github
+
+`~/.ssh/config` 中修改
+
+```config
+Host github.com
+ HostName github.com
+ User git
+ # 私钥
+ IdentifyFile ~/.ssh/id_rsa
+ # 设置 sock5 代理
+ ProxyCommand nc -v -x 127.0.0.1:7891 %h %p
+```
