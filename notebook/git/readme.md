@@ -129,13 +129,13 @@ git rev-parse HEAD
 
 ## 更新
 
-![git 图](../image/Git_commands.png)
+![git 图](../../image/Git_commands.png)
 
 ### `git add`
 
 工作目录下文件分为已跟踪或未跟踪， 而已跟踪的文件也有多种状态。
 
-![git 文件状态](../image/Git_file_state.png)
+![git 文件状态](../../image/Git_file_state.png)
 
 使用 `git add` **追踪新文件** 或 **更新文件变化到暂存区**
 
@@ -319,7 +319,7 @@ git rebase --onto <new-branch> <since> <till>
 
 ### stage
 
-![原理示意图](../image/Git_Schematic_diagram.png)
+![原理示意图](../../image/Git_Schematic_diagram.png)
 
 暂存区（stage）使用 `.git/index` 文件保存状态。该文件实际上是一个包含文件索引的 tree object，记录了文件名和文件状态信息，如时间戳和文件长度等，但并没有包含文件内容，后者是存在 blob object.
 
@@ -343,7 +343,7 @@ Git 对象包含三种：blob object、tree object 和 commit object。
 
 一个典型的 Git 对象关系如下。
 
-![object](../image/Git_Object.png)
+![object](../../image/Git_Object.png)
 
 ### refs/heads
 
