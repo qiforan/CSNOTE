@@ -72,6 +72,75 @@ C++ 11 中，右值引用就是对一个右值进行引用的类型。右值引�
 
 ![table 1](../../image/2021-12-26-19-38-47.png)
 
-`<utility>` 中 `std::move()` 将一个左值强制转化为右值引用。继而可以通过右值引用使用该值。
+`<utility>` 中 `std::move()` 强制转化为右值引用。继而可以通过右值引用使用该值。
 
 被 move 的左值生命周期并没有结束，不会立即析构，但不应再使用该值。
+
+### 2.3. 完美转发
+
+完美转发指在函数模板内，完全按照参数的类型，将参数传递给函数模板中调用的另一个函数。
+
+```cpp
+template<typename T>
+void IamForwoding(T&& t) {
+    IrunCodeActually(forward(t));
+}
+```
+
+#### 2.3.1 Universal Reference
+
+模板参数中 `T&&` 是一个通用引用。如果传递的是一个左值，那么 T 会推断为左值引用，Param Type 也是左值引用。如果传递的是右值，那么 `T` 是正常的类型，而 Param Type 为 `T&&`.
+
+#### 2.3.2 引用折叠
+
+![c++11_reference_collpsing](../../image/2021-12-28-16-51-27.png)
+
+```cpp
+template <typename T>
+void baz(T t) {
+  T& k = t;
+}
+int ii = 4;
+baz<int&>(ii);
+```
+
+这个实例中，T 被显式化为 `int&`, k 的类型为 `int &` 因为发生了引用折叠。
+
+参考:
+
+* [知乎回答：std::move(expr)和std::forward(expr) 疑问](https://www.zhihu.com/question/34544004/answer/59104471)
+
+* [Perfect forwarding and universal references in C++](https://eli.thegreenplace.net/2014/perfect-forwarding-and-universal-references-in-c/)
+
+## 3. 显式转换操作符
+
+`explict` 禁止隐式转换。
+
+```cpp
+class ConvertTo{};
+class Convertable{
+public:
+    explicit operator ConvertTo() const {return ConvertTo();}
+};
+void test()
+{
+    Convertable c;
+    ConvertTo ct(c);
+    ConvertTo ct2 = c; // implicit type conversion, fail
+    ConvertTo ct3 = static_cast<ConvertTo>(c); // explicit type conversion, success
+}
+```
+
+## 4. 列表初始化
+
+TODO
+
+## 5. POD 类型
+
+POD 是 Plain Old Data 的缩写。
+
+## SFINEA
+
+## decltype
+
+运行时类型识别(RTTI) 的机制是为每个类型产生一个 `type_info` 类型的数据。程序员可以在程序中使用 `typeid` 随时查询一个变量的类型，返回变量相应的 `type_info` 数据。而 `type_info` 的 `name` 成员函数可以返回类型的名字。C++ 11 增加了 `hash_code` 成员函数，返回该类型唯一的哈希值。
