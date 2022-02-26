@@ -35,7 +35,6 @@ Using auto is especially useful wherer the type is a pretty long and/or complica
 
 ## Uniform Initialization
 
-
 For any initialization, you can use **one common syntax** using braces.
 
 ```cpp
@@ -90,4 +89,4 @@ Complex c1(12,5);
 Complex c2 = c1 + 5; // Error: not match for operator+
 ```
 
-### `explicit` for ctors taking more than one argument 
+### `explicit` for ctors taking more than one argument

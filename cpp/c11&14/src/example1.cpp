@@ -7,7 +7,16 @@ void print(const T& firArg, Types... args) {
   print(args...);
 }
 
+template<typename T>
+void f(T&& val)
+{
+  std::cout << val << endl;
+}
+
 int main() {
   print("hello", "world");
+  f(1);
+  int a = 2;
+  f(2);
   return 0;
 }
