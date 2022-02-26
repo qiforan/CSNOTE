@@ -52,3 +52,33 @@ git branch -m main
 # Finally, force update your repository
 git push -f origin main
 ```
+
+- 设置 `IdentifyFile`
+
+1. 设置 `~/.ssh/config` 中的 host
+
+2. 使用 `ssh-agent`，添加密钥文件 `ssh-add`
+
+ssh 登录默认是不开启 `ssh-agent` 的。
+
+```shell script
+➜ ssh-add -l
+Could not open a connection to your authentication agent.
+```
+
+- 删除未跟踪文件
+
+```shell
+# 删除 untracked files
+git clean -f
+# 连 untracked 的目录也一起删掉
+git clean -fd
+ 
+# 连 gitignore 的untrack 文件/目录也一起删掉 （慎用，一般这个是用来删掉编译出来的 .o之类的文件用的）
+git clean -xfd
+ 
+# 在用上述 git clean 前，墙裂建议加上 -n 参数来先看看会删掉哪些文件，防止重要文件被误删
+git clean -nxfd
+git clean -nf
+git clean -nfd
+```
