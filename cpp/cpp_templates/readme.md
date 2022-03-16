@@ -124,3 +124,24 @@ bool less(T (&a)[N], T (&b)[M])
 ## 6 Move Semantics and `enable_if<>`
 
 ### 6.1 Perfect Forwarding
+
+### 6.3 Disable Templates with `enable_if`
+
+```cpp
+// Possible implementation
+template<bool B, class T = void>
+struct enable_if {};
+ 
+template<class T>
+struct enable_if<true, T> { typedef T type; };
+```
+
+`std::enable_if` 在编译时评估尖括号里给定的(第一个)表达式：
+
+* 如果为真，则成员类型 `type` 为 `void` 或为尖括号里第二个表达式；
+* 如果为假，则类型未定义。
+
+## 8 编译时编程
+
+C++11 中的 `constexpr` 指定的函数返回值和参数必须要保证是字面值，而且必须有且只有一行 `return` 代码，这给函数的设计者带来了更多的限制，比如通常只能通过 `return` 三目运算符+递归来计算返回的字面值。
+C++14 中只要保证返回值和参数是字面值就行了，函数体中可以加入更多的语句，方便了更灵活的计算。
