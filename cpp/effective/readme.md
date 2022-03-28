@@ -18,7 +18,7 @@ C++ 是一个多重范型编程语言，支持过程形式、面向对象形式�
 
 由 `define` 定义的常量会在预处理时替换，不会进入记号表（symbol table)，不利于调试。
 
-解决方式是用 `const` 常量替换：
+使用 `const` 常量：
 
 ```cpp
 const double AspectRatio = 1.653;
@@ -107,7 +107,7 @@ static 对象生命周期从构造出来开始直至程序结束。这种对象�
 
 ## 条款 5 默认生成的构造函数
 
-一个类必须有默认构造函数、copy 构造函数、copy 赋值操作符、析构函数，如果没有显式声明，编译器会隐式声明，且都是 `public & inline`.
+一个类必须有 `默认构造函数`、`copy 构造函数`、`copy 赋值操作符`、`析构函数`. 如果没有显式声明，编译器会隐式声明，且都是 `public & inline`.
 
 编译器生成的默认构造函数或析构函数只会调用基类构造函数或析构函数、non-static 成员变量的构造函数或析构函数。
 
@@ -231,9 +231,11 @@ if(this == &rhs) return *this; // 证同测试，identity test
 
 显式转换较为麻烦，隐式转换可能会增加错误发生的机会。
 
-## 条款 16 delete 数组
+## 条款 16 delete 要和 new 匹配
 
-删除指针所指空间除了会归还空间，会先调用析构函数。问题是被删除的指针可能指向单个对象，也可能指向对象数组。
+删除指针所指空间除了会归还空间，会先调用析构函数。
+
+被删除的指针可能指向单个对象，也可能指向对象数组。
 
 ```cpp
 delete obj1; // delete one object
@@ -351,7 +353,42 @@ private:
 
 ## 条款 24 若所有参数皆需要类型转换，采用 non-member 函数
 
+考虑以下代码
+
+```cpp
+class Rational {
+public:
+    // 允许隐式转换
+    Rational(int numerator, int denominator = 1);
+    int numerator() const { return numerator_; }
+    int denominator() const { return denominator_;}
+private:
+    ...
+};
+```
+
+如果想要支持 `Rational` 类型的乘法。可能会考虑以下代码
+
+```cpp
+class Rational {
+    ...
+    const Rational operator*(const Rational& rhs) const;
+};
+```
+
+但是，这个乘法不支持 `2 * a` 的形式。正确的方式是定义一个 non-member 函数
+
+```cpp
+const Rational operator*(const Rational& lhs, const Rational& rhs) {
+    return Rational(lhs.numerator() * rhs.numerator(), lhs.denominator() * rhs.denominator());
+}
+```
+
+**请记住**：如果你需要为某个函数的所有参数提供类型转换，那么你应该使用 non-member 函数。
+
 ## 条款 25 考虑写一个不抛异常的 `swap`
+
+TODO
 
 ## 条款 26 尽可能延后变量定义的时间
 
@@ -374,6 +411,10 @@ static_cast<T>(expression)
 - dynamic_cast  在执行期进行多态类(有虚函数)之间的转换,用于运行时类型识别.T必须是指针或引用,expression必须返回多态类类型.。它是唯一无法由旧式语法执行的动作，也是唯一可能耗费重大运行成本的转型动作。
 - reinterpret_cast 变量二进制位层次上的重新解释,并没有对变量的二进制储存方式进行更改.T 必须是指针,引用或算术类型。
 - static_cast 可以执行大多数类型的转换。但与 const_cast 类型相比,static_cast 不能去除 const 或 volatile 属性,与 dynamic_cast 相比不支持运行时类型识别,与 reinterpret_cast 相比不是位层次上的重新解释,而是对位进行改变后的重新编码.
+
+## 条款 28 避免返回 handle 指向对象内部成分
+
+
 
 ## 条款 30 了解 `inline`
 
