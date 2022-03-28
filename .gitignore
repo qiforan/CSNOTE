@@ -1,0 +1,26 @@
+# ide config文件
+.vscode
+.idea
+
+# macOS 文件
+.DS_Store
+
+temp
+cmake-build-*
+
+# cpp 输出文件
+*.exe
+*.out
+
+# nodejs
+
+node_modules
+
+# python
+__pycache__
+.ipynb_checkpoints
+.pyc
+
+log
+*build*
+.cache
