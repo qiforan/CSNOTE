@@ -40,6 +40,10 @@
 
 即便对于一个简单的系统调用，仍要完成相当多的工作，因此系统调用的开销虽小，却也不容忽视。
 
+参考：
+
+* [为什么系统调用时要把一些寄存器保存到内核栈又从内核栈恢复？](https://www.zhihu.com/question/381383261/answer/1135187523)
+
 ### 1.2. 登录
 
 用户通过键入**登录名**和**口令**执行登录操作。系统查看口令文件（通常是 `/etc/passwd` ）中的登录名。
@@ -407,7 +411,13 @@ ssize_t write(int fd, const void* buf, size_t nbytes);
 
 ![打开文件的内核数据结构](./images/chap1_openfiles.png)
 
-当进程打开一个文件时，内核就会创建一个新的file对象。多个进程同时打开同一个文件，则会创建多个file对象。
+两个不同的文件描述符，若指向同一打开文件句柄，将共享同一文件偏移量。两个文件描述符共享同一文件句柄的情况可能是：
+
+* 同一进程内，调用 `dup()`,`dup2()` 或 `fcntl` 实现 
+
+* 由 `fork()` 生成的父子进程之间共享同一打开文件句柄
+
+* 通过 UNIX 域套接字传递文件描述符
 
 file 对象是全局级别，可以与其他进程共享。
 
@@ -673,6 +683,47 @@ char *getcwd(char *buf, size_t size);
 >chroot命令用来在指定的根目录下运行指令。chroot，即 change root directory （更改 root 目录）。
 >在 linux 系统中，系统默认的目录结构都是以/，即是以根 (root) 开始的。而在使用 chroot 之后，系统的目录结构将以指定的位置作为/位置。
 
+#### 打开目录
+
+`opendir()` 函数打开一个目录，并返回指向该目录的句柄，供后续调用使用。
+
+```c
+#include <dirent.h>
+DIR *opendir(const char *dirpath);
+```
+
+返回一个目录流(directory stream)，该目录流可以用于遍历目录中的文件。
+
+#### 读取目录
+
+`readdir()` 函数从一个目录流中读取连续的条目。
+
+```c
+#include <dirent.h>
+struct dirent *readdir(DIR *dirp);
+```
+
+每调用 `readdir()` 一次，就会从 `dirp` 所指代的目录流中读取下一目录条目，读到末尾则返回 `NULL`。
+
+返回的目录条目是一个结构体，包含了文件名和文件类型等信息，是由静态分配的内存空间，无需管理。每次调用 `readdir()` 都会覆盖该结构体。
+
+```c
+struct dirent {
+    ino_t          d_ino;       /* inode number */
+    off_t          d_off;       /* offset to the next dirent */
+    unsigned short d_reclen;    /* length of this record */
+    unsigned char  d_type;      /* type of file; not supported
+                                   by all file system types */
+    char           d_name[256]; /* filename */
+};
+```
+
+`dirent` 结构体中只有 `d_ino` 和 `d_name` 是标准字段。
+
+调用 `lstat()` 可获得 `d_name` 所指文件的信息。
+
+`readdir()` 返回时并未对文件名进行排序，而是按照文件在目录中出现的天然次序。
+
 #### glob 函数
 
 ```c
@@ -689,23 +740,6 @@ void globfree(glob_t *pglob);
 ```
 
 可以通过通配符匹配(有选择地）获取目录下的所有文件
-
----
-
-也可以通过以下函数获取目录中的文件信息
-
-```c
-#include <sys/types.h>
-#include <dirent.h>
-
-DIR *opendir(const char *name);
-DIR *fdopendir(int fd);
-int closedir(DIR *dirp);
-struct dirent *readdir(DIR *dirp);
-void rewinddir(DIR *dirp);
-void seekdir(DIR *dirp, long loc);
-long telldir(DIR *dirp);
-```
 
 ### 3.4. 系统文件
 

@@ -1,6 +1,6 @@
 # C++ 并发
 
-## 线程管理
+## 1. 线程管理
 
 每个程序至少有一个线程：执行 `main()` 函数的线程，其余线程有其各自的入口函数。
 
@@ -145,7 +145,7 @@ std::cout<<std::this_thread::get_id();
 
 具体的输出结果是严格依赖于具体实现的，C++标准的唯一要求就是要保证ID比较结果相等的线程，必须有相同的输出。
 
-## 线程间共享数据
+## 2. 线程间共享数据
 
 解决恶性条件竞争最简单的办法就是对数据结构采用某种保护机制，确保只有进行修改的线程才能看到不变量被破坏时的中间状态。从其他访问线程的角度来看，修改不是已经完成了，就是还没开始。C++标准库提供很多类似的机制。
 
@@ -172,3 +172,52 @@ bool list_contains(int value_to_find)
   return std::find(some_list.begin(),some_list.end(),value_to_find) != some_list.end();
 }
 ```
+
+## 3. 同步并发
+
+### 3.1 条件变量
+
+C++ 标准库里的条件变量：
+
+* `std::condition_variable` 仅限于与std::mutex一起工作
+
+* `std::condition_variable_any` 可以和任何满足最低标准的互斥量一起工作，但资源开销更大。
+
+```cpp
+std::mutex mut;
+std::queue<data_chunk> data_queue;  // 1
+std::condition_variable data_cond;
+void data_preparation_thread()
+{
+  while(more_data_to_prepare())
+  {
+    data_chunk const data=prepare_data();
+    std::lock_guard<std::mutex> lk(mut);
+    data_queue.push(data);  // 2
+    data_cond.notify_one();  // 3
+  }
+}
+void data_processing_thread()
+{
+  while(true)
+  {
+    std::unique_lock<std::mutex> lk(mut);  // 4
+    data_cond.wait(
+         lk,[]{return !data_queue.empty();});  // 5
+    data_chunk data=data_queue.front();
+    data_queue.pop();
+    lk.unlock();  // 6
+    process(data);
+    if(is_last_chunk(data))
+      break;
+  }
+}
+```
+
+`wait()` 会检查条件是否满足，如果不满足，则将解锁互斥量，阻塞当前线程。
+`notify_one()` 将通知条件变量，唤醒一个等待条件的线程。
+
+> 这里使用 `std::unique_lock` 而不是 `std::lock_guard`，因为后者不能中途解锁。
+
+### 3.2 期望
+
