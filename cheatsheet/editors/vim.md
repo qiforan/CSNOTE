@@ -1,4 +1,4 @@
-# VIM CHEATSHEET 
+# VIM CHEATSHEET
 
 
 ## 光标移动
@@ -262,7 +262,7 @@ ddp                 交换两行内容：先删除当前行复制到寄存器，
 ```
 
 
-## 文本对象 
+## 文本对象
 
 c,d,v,y 等命令后接文本对象，一般为：`<范围 i/a><类型>`
 
@@ -632,7 +632,7 @@ zO                  打开光标下所有代码折叠
 ```
 
 
-## 宏录制
+## 宏
 
 ```
 qa                  开始录制名字为 a 的宏
@@ -776,7 +776,6 @@ yaa                 复制函数参数（包括逗号分隔）
 * [中文脚本帮助](http://vimcdoc.sourceforge.net/doc/eval.html)
 * [十六年使用经验](http://zzapper.co.uk/vimtips.html)
 * [配色方案](http://vimcolors.com/)
-
 
 ## TIPS
 
