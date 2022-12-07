@@ -74,24 +74,74 @@ sudo apt-get install numix-gtk-theme numix-icon-theme-circle
 4. 安装 `Dash to Dock` 插件，并放置到底部
 
 
-## 代理
+## clash
 
-1. `electron-ssr`，需要 `python2.7` 支持。
+### 安装 clash
 
-2. `SwitchyOmega` 浏览器插件，代理协议设置为 `socks5`，并添加 [Rule List](https://raw.githubusercontent.com/gfwlist/gfwlist/master/gfwlist.txt)
+1. 下载对应的 clash 版本 [下载地址](https://github.com/Dreamacro/clash/releases)
 
-3. `proxychains`
+2. 解压 clash
 
-4. apt 代理
+3. 将解压出的文件重命名成 clash
 
-## 软件
+4. 将 clash 移动到 `/usr/bin/` 目录下
 
-1. [wine](https://github.com/wszqkzqk/deepin-wine-ubuntu) 及 微信、TIM
+5. 赋予 clash 可执行权限
 
-2. VSCode
+```bash
+sudo chmod +x /usr/bin/clash
+```
 
-3. JetBrains Pack
+6. 检查 clash 是否安装成功
 
+```bash
+clash -v
+```
+
+### 修改配置
+
+默认配置目录是 `$HOME/.config/clash`
+
+配置文件的名称是 `config.yml`
+
+如果要使用其他目录，可以使用 `-d` 控制配置目录
+
+### systemd 服务脚本
+
+在 `/lib/systemd/system/` 目录下创建 `clash@.service` 文件
+
+```bash
+sudo vim /lib/systemd/system/clash@.service
+```
+
+写入以下内容(不用修改)并保存:
+
+```bash
+[Unit]
+Description=A rule based proxy in Go for %i.
+After=network.target
+
+[Service]
+Type=simple
+User=%i
+Restart=on-abort
+ExecStart=/usr/bin/clash
+
+[Install]
+WantedBy=multi-user.target
+```
+
+```bash
+# 重新加载 systemd 模块
+systemctl daemon-reload
+
+# 启动 clash 服务
+# user 表示的是当前用户名
+systemctl start clash@user
+
+# 设置开机自启
+systemctl enable clash@user
+```
 
 ## 问题
 
@@ -111,4 +161,5 @@ sudo apt-get install numix-gtk-theme numix-icon-theme-circle
 >在命令行中输入下面命令
 >`Reg add HKLM\SYSTEM\CurrentControlSet\Control\TimeZoneInformation /v RealTimeIsUniversal /t REG_DWORD /d 1`
 
-倾向于第一种
+倾向于第一种。
+
